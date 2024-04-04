@@ -1,0 +1,41 @@
+# Copyright VMware, Inc.
+# SPDX-License-Identifier: APACHE-2.0
+
+version: '2'
+services:
+  postgresql:
+    image: docker.io/bitnami/postgresql:15
+    ports:
+      - '5432:5432'
+    volumes:
+      - 'oddo-17-postgres-dev:/bitnami/postgresql'
+    environment:
+      - POSTGRESQL_POSTGRES_PASSWORD=admin-demo
+      - POSTGRESQL_PASSWORD=demo
+      - POSTGRESQL_USERNAME=odoo_user
+      - POSTGRESQL_DATABASE=odoo_demo_db
+#  odoo:
+#    image: docker.io/bitnami/odoo:16
+#    ports:
+#      - '80:8069'
+#    volumes:
+#      - 'odoo-data:/bitnami/odoo'
+#      - '/Users/gfr/Documents/local_repository/odoo-addons:/mnt/odoo-extra-addons'
+#    depends_on:
+#      - postgresql
+#    environment:
+#      # ALLOW_EMPTY_PASSWORD is recommended only for development.
+#      - ALLOW_EMPTY_PASSWORD=yes
+#      - ODOO_DATABASE_HOST=postgresql
+#      - ODOO_DATABASE_PORT_NUMBER=5432
+#      - ODOO_DATABASE_USER=bn_odoo
+#      - ODOO_DATABASE_NAME=bitnami_odoo
+#      - ODOO_EMAIL=gfr@gammadata.de
+#      - ODOO_PASSWORD=test_odoo
+#      - ODOO_LOAD_DEMO_DATA=yes
+volumes:
+  oddo-17-postgres-dev:
+    external: true
+#  odoo-data:
+#    external: true
+

@@ -1,0 +1,15 @@
+<odoo>
+    <record model="ir.ui.view" id="view_sales_order_extend">
+        <field name="name">Job Relation</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <field name="validity_date" position="before">
+                <field name="job_id"/>
+            </field>
+            <field name="payment_term_id" position="after">
+                <field name="amount_untaxed"/>
+            </field>
+        </field>
+    </record>
+</odoo>

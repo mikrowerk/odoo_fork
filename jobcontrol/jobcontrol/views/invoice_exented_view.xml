@@ -1,0 +1,12 @@
+<odoo>
+    <record model="ir.ui.view" id="view_invoice_extend">
+        <field name="name">Job Relation</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <field name="payment_reference" position="before">
+                <field name="job_id"/>
+            </field>
+        </field>
+    </record>
+</odoo>

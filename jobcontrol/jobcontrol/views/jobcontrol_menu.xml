@@ -1,0 +1,14 @@
+<odoo> <!-- Jobcontrol App Menu -->
+    <menuitem id="menu_jobcontrol" name="Jobcontrol"/>
+    <!-- Action to open the Book list -->
+    <record id="action_jobcontrol_job" model="ir.actions.act_window">
+        <field name="name">Job Name</field>
+        <field name="res_model">jobcontrol.job</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <menuitem id="menu_jobcontrol_job"
+              name="Jobs"
+              parent="menu_jobcontrol"
+              action="action_jobcontrol_job"
+    />
+</odoo>

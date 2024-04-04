@@ -1,0 +1,12 @@
+<odoo>
+    <record model="ir.ui.view" id="view_purchase_order_extend">
+        <field name="name">Job Relation</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <field name="date_order" position="before">
+                <field name="job_id"/>
+            </field>
+        </field>
+    </record>
+</odoo>

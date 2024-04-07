@@ -28,6 +28,8 @@ This includes sales orders & invoices, purchases, material & time spend
         'security/ir.model.access.csv',
         'views/jobcontrol_menu.xml',
         'views/job_views.xml',
+        'views/job_category_views.xml',
+        'views/job_costs_views.xml',
         'views/job_templates.xml',
         'views/sales_order_exented_view.xml',
         'views/purchase_order_exented_view.xml',

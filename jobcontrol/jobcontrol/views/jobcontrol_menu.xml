@@ -2,13 +2,33 @@
     <menuitem id="menu_jobcontrol" name="Jobcontrol"/>
     <!-- Action to open the Book list -->
     <record id="action_jobcontrol_job" model="ir.actions.act_window">
-        <field name="name">Job Name</field>
+        <field name="name">Jobs</field>
         <field name="res_model">jobcontrol.job</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <record id="action_jobcontrol_job_category" model="ir.actions.act_window">
+        <field name="name">Job Categories</field>
+        <field name="res_model">jobcontrol.job_category</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <record id="action_jobcontrol_job_costs" model="ir.actions.act_window">
+        <field name="name">Job Costs</field>
+        <field name="res_model">jobcontrol.job_costs</field>
         <field name="view_mode">tree,form</field>
     </record>
     <menuitem id="menu_jobcontrol_job"
               name="Jobs"
               parent="menu_jobcontrol"
               action="action_jobcontrol_job"
+    />
+    <menuitem id="menu_jobcontrol_job_category"
+              name="Job Categories"
+              parent="menu_jobcontrol"
+              action="action_jobcontrol_job_category"
+    />
+    <menuitem id="menu_jobcontrol_job_costs"
+              name="Job Costs"
+              parent="menu_jobcontrol"
+              action="action_jobcontrol_job_costs"
     />
 </odoo>

@@ -1,2 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_jobcontrol_jobcontrol,jobcontrol.jobcontrol,model_jobcontrol_job,base.group_user,1,1,1,1
+access_jobcontrol_job_category,jobcontrol.job_category,model_jobcontrol_job_category,base.group_user,1,1,1,1
+access_jobcontrol_job_costs,jobcontrol.job_costs,model_jobcontrol_job_costs,base.group_user,1,1,1,1

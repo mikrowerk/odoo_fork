@@ -6,15 +6,14 @@
             <field name="arch" type="xml">
                 <form string="Job Input" class="o_sale_order">
                     <header>
-                        <button name="create_sales_order" type="object" string="Create Sales Order"/>
-                        <field name="state" widget="statusbar"
-                               statusbar_visible="draft,quotation,ordered,progress,invoiced,completed"/>
+                        <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
                     </header>
                     <sheet>
                         <group name="job_header">
                             <group name="partner_details">
                                 <field name="number"/>
                                 <field name="name"/>
+                                <field name="job_category_id"/>
                                 <field name="partner_company_id"
                                        widget="res_partner_many2one"
                                        context="{'res_partner_search_mode': 'customer', 'show_address': 1}"
@@ -38,14 +37,15 @@
                                 <field name="description" widget="html"/>
                             </page>
                             <page string="Sales Quotations and Orders" name="sales_order_lines">
+                                <button name="create_sales_order" type="object" string="Create Sales Order"
+                                        class="oe_highlight" icon="fa-plus"/>
                                 <field
                                         name="sales_order_line"
                                         mode="tree"
                                         readonly="state == 'completed' or 'archived'">
-                                    <tree class="o_sale_order"
-                                          string="Sales Order Lines"
-                                          expand="context.get('expand', False)"
-                                          limit="100">
+                                    <tree
+                                            string="Sales Order Lines"
+                                            limit="100">
 
                                         <field name="name" string="Number" readonly="1" decoration-bf="1"/>
                                         <field name="client_order_ref" optional="hide"/>
@@ -111,9 +111,8 @@
                                         name="sales_invoice_order_line"
                                         mode="tree"
                                         type="xml"
-                                        readonly="state == 'completed' or 'archived'">
-                                    <tree string="Journal Entries" sample="1" decoration-info="state == 'draft'"
-                                          expand="context.get('expand', False)">
+                                >
+                                    <tree string="Journal Entries">
                                         <field name="name" decoration-danger="made_sequence_hole"/>
                                         <field name="company_currency_id" column_invisible="True"/>
                                         <field name="made_sequence_hole" column_invisible="True"/>
@@ -206,6 +205,27 @@
                                     </tree>
                                 </field>
                             </page>
+                            <page string="Costs" name="job_costs">
+                                <field
+                                        name="job_cost_line"
+                                        mode="tree"
+                                        type="xml"
+                                        readonly="state == 'completed' or 'archived'">
+                                    <tree
+                                            editable="top">
+                                        <field name="name"/>
+                                        <field name="product_id"/>
+                                        <field name="product_uom_category_id" invisible="1" optional="hide"/>
+                                        <field name="product_uom_qty" string="Qty"/>
+                                        <field name="product_uom"/>
+                                        <field name="currency_id" invisible="1" optional="hide"/>
+                                        <field name="unit_price" string="Unit price" />
+                                        <field name="total_price" string="Total" widget="monetary"/>
+                                        <field name="description" string="Description" optional="hide"/>
+                                        <button type="object" name="get_formview_action" string="Open" icon="fa-edit"/>
+                                    </tree>
+                                </field>
+                            </page>
                             <page string="Messages &amp; Notes &amp; Activities" name="job_chatter">
                                 <div class="oe_chatter">
                                     <field name="message_follower_ids"/>
@@ -222,7 +242,7 @@
         </record>
 
 
-        <!--         explicit list view definition -->
+        <!-- explicit job list view definition -->
         <record model="ir.ui.view" id="jobcontrol.list">
             <field name="name">jobcontrol list</field>
             <field name="model">jobcontrol.job</field>
@@ -230,8 +250,9 @@
                 <tree>
                     <field name="number"/>
                     <field name="name"/>
-                    <field name="partner_company_id" optional="hide"/>
-                    <field name="partner_responsible_id"/>
+                    <field name="job_category_id"/>
+                    <field name="partner_company_id" optional="show"/>
+                    <!--                    <field name="partner_responsible_id"/>-->
                     <field name="user_id" widget="many2one_avatar_user"/>
                     <field name="date_started"/>
                     <field name="date_completed"/>
@@ -246,6 +267,7 @@
                 </tree>
             </field>
         </record>
+
 
         <!-- actions opening views on models -->
         <!--

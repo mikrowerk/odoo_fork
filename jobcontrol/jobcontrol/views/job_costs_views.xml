@@ -1,0 +1,52 @@
+<odoo>
+    <data>
+        <!--         explicit category list view definition -->
+        <record model="ir.ui.view" id="jobcontrol.costs_list">
+            <field name="name">jobcontrol_costs list</field>
+            <field name="model">jobcontrol.job_costs</field>
+            <field name="arch" type="xml">
+                <tree
+                        editable="top">
+                    <field name="job_id"/>
+                    <field name="name"/>
+                    <field name="product_id"/>
+                    <field name="product_uom_category_id" invisible="1" optional="hide"/>
+                    <field name="product_uom_qty" string="Qty"/>
+                    <field name="product_uom"/>
+                    <field name="currency_id" invisible="1" optional="hide"/>
+                    <field name="unit_price" string="Unit price" />
+                    <field name="total_price" string="Total" widget="monetary"/>
+                    <field name="description" string="Description" optional="hide"/>
+                    <button type="object" name="get_formview_action" string="Open" icon="fa-edit"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_job_costs_form" model="ir.ui.view">
+            <field name="name">job_costs.input.form</field>
+            <field name="model">jobcontrol.job_costs</field>
+            <field name="arch" type="xml">
+                <form string="Job Costs Input" class="o_sale_order">
+                    <header>
+                    </header>
+                    <sheet>
+                        <group name="cost_details">
+                            <field name="job_id"/>
+                            <field name="name"/>
+                            <field name="product_id"/>
+                            <field name="product_uom_category_id" invisible="1"/>
+                            <group name="qty">
+                                <field name="product_uom_qty"/>
+                                <field name="product_uom"/>
+                            </group>
+                            <field name="currency_id" invisible="1" optional="hide"/>
+                            <field name="unit_price" string="Unit price" />
+                            <field name="total_price" string="Total" widget="monetary"/>
+                            <field name="description" string="Description"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

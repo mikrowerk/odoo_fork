@@ -140,7 +140,16 @@ class createpurchaseorder(models.TransientModel):
             
             self.env['purchase.order.line'].create(value)
 
-        return purchase_order
+        return {
+            'name': 'Purchase Order',
+            'type': 'ir.actions.act_window',
+            'view_mode': 'form',
+            'target': 'current',
+            'res_id': purchase_order.id,
+            'res_model': 'purchase.order',
+            'context': {'create': False, 'delete': True, 'edit': True, }
+        }
+#        return purchase_order
 
 
 class Getsaleorderdata(models.TransientModel):

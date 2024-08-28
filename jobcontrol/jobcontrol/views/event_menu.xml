@@ -1,0 +1,114 @@
+<odoo>
+    <data>
+        <!-- Action to open the Event list -->
+        <record id="action_jobcontrol_eventmanagement_event" model="ir.actions.act_window">
+            <field name="name">Event List</field>
+            <field name="res_model">jobcontrol.eventmanagement.event</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <record id="action_jobcontrol_eventmanagement_event_tree" model="ir.actions.act_window.view">
+            <field name="act_window_id" ref="action_jobcontrol_eventmanagement_event"/>
+            <field name="view_id" ref="jobcontrol_eventmanagement_event_list"/>
+            <field name="view_mode">tree</field>
+            <field name="sequence" eval="1"/>
+        </record>
+
+        <record id="action_jobcontrol_eventmanagement_event_form" model="ir.actions.act_window.view">
+            <field name="act_window_id" ref="action_jobcontrol_eventmanagement_event"/>
+            <field name="view_id" ref="jobcontrol_eventmanagement_event_form"/>
+            <field name="view_mode">form</field>
+            <field name="sequence" eval="2"/>
+        </record>
+
+        <record id="action_jobcontrol_eventmanagement_session" model="ir.actions.act_window">
+            <field name="name">Session List</field>
+            <field name="res_model">jobcontrol.eventmanagement.session</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <record id="action_jobcontrol_eventmanagement_session_tree" model="ir.actions.act_window.view">
+            <field name="act_window_id" ref="action_jobcontrol_eventmanagement_session"/>
+            <field name="view_id" ref="jobcontrol_eventmanagement_session_list"/>
+            <field name="view_mode">tree</field>
+            <field name="sequence" eval="1"/>
+        </record>
+
+        <record id="action_jobcontrol_eventmanagement_session_form" model="ir.actions.act_window.view">
+            <field name="act_window_id" ref="action_jobcontrol_eventmanagement_session"/>
+            <field name="view_id" ref="jobcontrol_eventmanagement_event_session_form"/>
+            <field name="view_mode">form</field>
+            <field name="sequence" eval="2"/>
+        </record>
+
+        <!-- locations -->
+        <record id="action_jobcontrol_eventmanagement_locations" model="ir.actions.act_window">
+            <field name="name">Event Location List</field>
+            <field name="res_model">jobcontrol.eventmanagement.location</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <record id="action_jobcontrol_eventmanagement_locations_tree" model="ir.actions.act_window.view">
+            <field name="act_window_id" ref="action_jobcontrol_eventmanagement_locations"/>
+            <field name="view_id" ref="jobcontrol_eventmanagement_location_list"/>
+            <field name="view_mode">tree</field>
+            <field name="sequence" eval="1"/>
+        </record>
+
+        <record id="action_jobcontrol_eventmanagement_location_form" model="ir.actions.act_window.view">
+            <field name="act_window_id" ref="action_jobcontrol_eventmanagement_locations"/>
+            <field name="view_id" ref="jobcontrol_eventmanagement_location_form"/>
+            <field name="view_mode">form</field>
+            <field name="sequence" eval="2"/>
+        </record>
+
+        <!-- rooms -->
+
+        <record id="action_jobcontrol_eventmanagement_rooms" model="ir.actions.act_window">
+            <field name="name">Event Room List</field>
+            <field name="res_model">jobcontrol.eventmanagement.room</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <record id="action_jobcontrol_eventmanagement_room_tree" model="ir.actions.act_window.view">
+            <field name="act_window_id" ref="action_jobcontrol_eventmanagement_rooms"/>
+            <field name="view_id" ref="jobcontrol_eventmanagement_room_list"/>
+            <field name="view_mode">tree</field>
+            <field name="sequence" eval="1"/>
+        </record>
+
+        <record id="action_jobcontrol_eventmanagement_room_form" model="ir.actions.act_window.view">
+            <field name="act_window_id" ref="action_jobcontrol_eventmanagement_rooms"/>
+            <field name="view_id" ref="jobcontrol_eventmanagement_room_form"/>
+            <field name="view_mode">form</field>
+            <field name="sequence" eval="2"/>
+        </record>
+
+        <!-- Top menu item -->
+        <menuitem name="Eventmanagement" id="jobcontrol_eventmanagement_menu_root"/>
+        <!--     menu categories -->
+        <menuitem id="jobcontrol_eventmanagement_event_list_menu"
+                  parent="jobcontrol_eventmanagement_menu_root"
+                  action="action_jobcontrol_eventmanagement_event"
+                  sequence="10"
+                  groups=""/>
+
+        <menuitem id="jobcontrol_eventmanagement_session_list_menu"
+                  parent="jobcontrol_eventmanagement_menu_root"
+                  action="action_jobcontrol_eventmanagement_session"
+                  sequence="20"
+                  groups=""/>
+
+        <menuitem id="jobcontrol_eventmanagement_location_list_menu"
+                  parent="jobcontrol_eventmanagement_menu_root"
+                  action="action_jobcontrol_eventmanagement_locations"
+                  sequence="30"
+                  groups=""/>
+
+        <menuitem id="jobcontrol_eventmanagement_room_list_menu"
+                  parent="jobcontrol_eventmanagement_menu_root"
+                  action="action_jobcontrol_eventmanagement_rooms"
+                  sequence="40"
+                  groups=""/>
+    </data>
+</odoo>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  © 2013-2016 Akretion (Alexis de Lattre <alexis.delattre@akretion.com>)
+  License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+-->
+<!--
+    Customize all mandate views (and actions) to fit SEPA mandate style
+-->
+<odoo>
+    <record id="view_mandate_form" model="ir.ui.view">
+        <field name="name">sdd.mandate.form</field>
+        <field name="model">account.banking.mandate</field>
+        <field name="inherit_id" ref="account_banking_mandate.view_mandate_form"/>
+        <field name="arch" type="xml">
+            <button name="validate" position="before">
+                <button class="btn-primary" invisible="state not in ['draft']" name="action_mandate_send" string="Send by Email" type="object"/>
+                <button name="print_report" string="Print" type="object"/>
+            </button>
+            <field name="partner_id" position="after">
+                <field invisible="format != 'sepa'" name="scheme" required="format == 'sepa'"/>
+                <field invisible="type == 'oneoff' or format != 'sepa'" name="recurrent_sequence_type" required="type == 'recurrent'"/></field>
+            <field name="type" position="attributes">
+                <attribute name="required">format == 'sepa'</attribute></field></field>
+    </record>
+    <record id="view_mandate_tree" model="ir.ui.view">
+        <field name="name">sdd.mandate.tree</field>
+        <field name="model">account.banking.mandate</field>
+        <field name="inherit_id" ref="account_banking_mandate.view_mandate_tree"/>
+        <field name="arch" type="xml">
+            <field name="type" position="after">
+                <field decoration-info="scheme == 'CORE'" decoration-success="scheme == 'B2B'" name="scheme" widget="badge"/>
+                <field decoration-info="recurrent_sequence_type == 'first'" decoration-success="recurrent_sequence_type == 'recurring'" decoration-warning="recurrent_sequence_type == 'final'" name="recurrent_sequence_type" string="Sequence Type" widget="badge"/></field>
+            <field name="type" position="attributes">
+                <attribute name="decoration-info">
+                    type == 'recurrent'</attribute>
+                <attribute name="decoration-warning">
+                    type == 'oneoff'</attribute></field>
+            <field name="format" position="attributes">
+                <attribute name="decoration-success">
+                    format == 'sepa'</attribute></field></field>
+    </record>
+    <record id="view_mandate_search" model="ir.ui.view">
+        <field name="name">sdd.mandate.search</field>
+        <field name="model">account.banking.mandate</field>
+        <field name="inherit_id" ref="account_banking_mandate.view_mandate_search"/>
+        <field name="arch" type="xml">
+            <filter name="expired" position="after">
+                <separator/>
+                <filter domain="[('type', '=', 'oneoff')]" name="oneoff" string="One-Off"/>
+                <filter domain="[('type', '=', 'recurrent')]" name="recurrent" string="Recurrent"/>
+            </filter>
+            <filter name="signature_date_groupby" position="before">
+                <filter context="{'group_by': 'type'}" name="type_groupby" string="Type"/>
+                <filter context="{'group_by': 'scheme'}" name="scheme_groupby" string="Scheme"/>
+                <filter context="{'group_by': 'recurrent_sequence_type'}" name="recurrent_sequence_type_groupby" string="Sequence Type"/>
+            </filter></field>
+    </record>
+</odoo>

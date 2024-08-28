@@ -11,26 +11,14 @@
             <field name="arch" type="xml">
                 <header>
                     <button name="%(action_transientmodel_wizard)d" string="Create Purchase Order" type="action"
-                            invisible="state in ('done', 'cancel')"/>
-                    <button class="oe_stat_button" name="action_open_purchase_order"
-                                    type="object" >
-                                <div class="o_field_widget o_stat_info">
-                                    <span class="o_stat_value" align="center">
-                                        <field name="po_count" />
-                                    </span>
-                                    <span class="o_stat_text" >
-                                        Purchase Order
-                                    </span>
-                                </div>
-                    </button>
+                            class="btn-primary" invisible="state in ('done', 'cancel')"/>
                 </header>
+
                 
-                
-            
-                
-<!--                <xpath expr="//sheet/div[hasclass('oe_button_box')]" position="inside">
+                <xpath expr="//sheet/div[hasclass('oe_button_box')]" position="inside">
                     <button class="oe_stat_button" name="action_open_purchase_order"
-                                    type="object" icon="fa-bars">
+                                    type="object" icon="fa-shopping-cart">
+
                                 <div class="o_field_widget o_stat_info">
                                     <span class="o_stat_value" align="center">
                                         <field name="po_count" />
@@ -40,7 +28,7 @@
                                     </span>
                                 </div>
                     </button>
-                </xpath>-->
+                </xpath>
             </field>
         </record>
     </data>

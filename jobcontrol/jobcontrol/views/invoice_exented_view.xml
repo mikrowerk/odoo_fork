@@ -1,4 +1,14 @@
 <odoo>
+
+    <record id="action_add_cost_lines" model="ir.actions.act_window">
+        <field name="name">Add Job Costs</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">jobcontrol.job_costs_transient</field>
+        <field name="binding_view_types">form</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
     <record model="ir.ui.view" id="view_invoice_extend">
         <field name="name">Job Relation</field>
         <field name="model">account.move</field>
@@ -6,7 +16,82 @@
         <field name="arch" type="xml">
             <field name="payment_reference" position="before">
                 <field name="job_id"/>
+                <button name="%(action_add_cost_lines)d" string="Add Job Costs" type="action"
+                        class="btn-primary"/>
+            </field>
+            <field name="price_subtotal" position="after">
+                <button type="object" name="get_formview_action" string="Open" icon="fa-edit"/>
             </field>
         </field>
     </record>
+
+    <record model="ir.ui.view" id="view_invoice_line_extend">
+        <field name="name">Job Costs</field>
+        <field name="model">account.move.line</field>
+        <field name="inherit_id" ref="account.view_move_line_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page name="job_costs" string="Job Costs">
+                    <button name="%(action_add_cost_lines)d" string="Add Job Costs" type="action"
+                            class="btn-primary"/>
+                    <field name="job_cost_ids"
+                           mode="tree"
+                           type="xml">
+                        <tree create="False">
+                            <field name="job_id"/>
+                            <field name="effective_date" string="Date"/>
+                            <field name="name"/>
+                            <field name="product_id"/>
+                            <field name="product_uom_category_id" invisible="1" optional="hide"/>
+                            <field name="product_uom_qty" string="Qty"/>
+                            <field name="product_uom" readonly="True"/>
+                            <field name="currency_id" invisible="True" optional="hide"/>
+                            <field name="unit_price" string="Unit price"/>
+                            <field name="total_price" string="Total" widget="monetary"/>
+                            <field name="invoiced" string="invoiced"/>
+                        </tree>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+
+    <record id="view_transient_job_costs" model="ir.ui.view">
+        <field name="name">view_transient_job_costs.form</field>
+        <field name="model">jobcontrol.job_costs_transient</field>
+        <field name="arch" type="xml">
+            <form string="Job Costs" edit="True">
+                <p class="oe_grey"></p>
+                <group>
+                    <field name="job_name" string="Job" readonly="True"/>
+                </group>
+                <br></br>
+                <div>
+                    <field name="job_costs_line_ids" nolabel="1">
+                        <tree editable="top" create='False' delete="True" edit="True">
+                            <field name="add"/>
+                            <field name="cost_line_id"/>
+                            <field name="name" readonly="True"/>
+                            <field name="product_name" readonly="True"/>
+                            <field name="product_uom_qty" string="Qty" readonly="True"/>
+                            <field name="currency_id" invisible="True" nolabel="True"/>
+                            <field name="unit_price" string="Unit price" widget="monetary" readonly="True"/>
+                            <field name="total_price" string="Total" widget="monetary" readonly="True"/>
+                            <field name="not_billable" readonly="True"/>
+                            <field name="invoiced" string="invoiced" readonly="True"/>
+                            <field name="description" string="Description" optional="hide" readonly="True"/>
+                        </tree>
+                    </field>
+                </div>
+
+                <footer>
+                    <button name="add_job_costs_lines" string="Add Job Costs" type="object"
+                            class="btn-primary"/>
+                    <button string="Cancel" class="btn-default" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
 </odoo>

@@ -1,0 +1,166 @@
+<odoo>
+    <data>
+        <!-- explicit list view definition -->
+        <record model="ir.ui.view" id="jobcontrol_eventmanagement_event_list">
+            <field name="name">eventmanagement list</field>
+            <field name="model">jobcontrol.eventmanagement.event</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="job_name"/>
+                    <field name="name"/>
+                    <field name="responsible_customer_name"/>
+                    <field name="start_date"/>
+                    <field name="end_date"/>
+                    <field name="description"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- explicit form view definition -->
+        <record model="ir.ui.view" id="jobcontrol_eventmanagement_event_form">
+            <field name="name">eventmanagement form</field>
+            <field name="model">jobcontrol.eventmanagement.event</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+
+                    </header>
+                    <group>
+                        <field name="job_id"/>
+                        <field name="name"/>
+                        <field name="responsible_customer_id"/>
+                        <field name="responsible_agency_id"/>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="start_date"/>
+                        </group>
+                        <group>
+                            <field name="end_date"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="description"/>
+                    </group>
+                    <notebook>
+                        <page name="session_lines" string="Sessions">
+                            <field name="session_lines"
+                                   mode="tree">
+                                <tree create="True"
+                                      delete="false"
+                                      string="Event Sessions"
+                                      limit="30">
+                                    <field name="name" string="Session Name"/>
+                                    <field name="pax" string="Participants"/>
+                                    <field name="start_date" string="Start Date"/>
+                                    <field name="end_date" string="End Date"/>
+                                    <field name="event_room_name" string="Room"/>
+                                    <field name="event_room_config" string="Room Configuration" readonly="True"/>
+                                    <field name="event_room_capacity" string="Room Capacity"/>
+                                    <field name="description"/>
+                                    <button type="object" name="get_formview_action" string="Open" icon="fa-edit"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="jobcontrol_eventmanagement_event_session_form">
+            <field name="name">eventmanagement form</field>
+            <field name="model">jobcontrol.eventmanagement.session</field>
+            <field name="arch" type="xml">
+                <form>
+                    <group>
+                        <group>
+                            <field name="event_id"/>
+                            <field name="name" string="Session Name"/>
+                            <field name="pax" string="Participants" style="width:20"/>
+                            <field name="start_date"/>
+                            <field name="end_date"/>
+                        </group>
+
+                        <group>
+                            <field name="event_room_id" string="Assigned Room" style="width:20"/>
+                            <field name="event_room_config_id" string="Room Configuration" style="width:20"/>
+                            <field name="event_room_capacity" string="Room Capacity" readonly="True" style="width:20"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="description"/>
+                    </group>
+                    <notebook>
+                        <page name="speakers" string="Speakers / Actors">
+                            <field name="speakers" string="Speakers">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="function"/>
+                                    <field name="email"/>
+                                    <field name="mobile"/>
+                                    <field name="city"/>
+                                </tree>
+                            </field>
+                        </page>
+
+                        <page name="catering_items" string="Catering Order">
+                            <field name="catering_order_line"
+                                   class="o_sale_order"
+                                   string="Purchase Order Lines"
+                                   limit="100">
+                                <tree create="True"
+                                      string="Catering Orders"
+                                      limit="100">
+                                    <field name="name"/>
+                                    <field name="partner_ref" />
+                                    <field name="partner_id" />
+                                    <!--
+                                    <field name="company_id" groups="!base.group_multi_company"
+                                           column_invisible="True"/>
+                                    <field name="company_id"
+                                           groups="base.group_multi_company"
+                                           column_invisible="True"/>
+                                           -->
+                                    <field name="user_id" widget="many2one_avatar_user" optional="show"/>
+                                    <field name="date_order" />
+                                    <field name="date_planned"
+                                           column_invisible="context.get('quotation_only', False)" optional="show"/>
+                                    <field name="currency_id" invisible="1" nolabel="1" readonly="1"/>
+                                    <field name="amount_untaxed" readonly="1" sum="Total untaxed"
+                                           widget="monetary"/>
+                                    <field name="amount_total" sum="Total amount" widget="monetary" readonly="1"
+                                           optional="show"/>
+                                    <field name="state"/>
+                                    <button type="object" name="get_formview_action" string="Open" icon="fa-edit"/>
+                                </tree>
+                            </field>
+
+                        </page>
+
+                        <page name="setup_items" string="Setup Items">
+
+                        </page>
+                    </notebook>
+
+
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="jobcontrol_eventmanagement_session_list">
+            <field name="name">Event Session list</field>
+            <field name="model">jobcontrol.eventmanagement.session</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="event_name"/>
+                    <field name="name" string="Session Name"/>
+                    <field name="pax"/>
+                    <field name="start_date"/>
+                    <field name="end_date"/>
+                    <field name="description"/>
+                </tree>
+            </field>
+        </record>
+
+    </data>
+</odoo>

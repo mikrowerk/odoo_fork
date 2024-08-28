@@ -1,0 +1,125 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="jobcontrol_eventmanagement_location_list">
+            <field name="name">Event Locations list</field>
+            <field name="model">jobcontrol.eventmanagement.location</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name" string="Name"/>
+                    <field name="location_city" string="City"/>
+                    <field name="location_zip" string="ZIP"/>
+                    <field name="pax_max" string="Max Capacity"/>
+                    <field name="location_description" string="Description"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="jobcontrol_eventmanagement_location_form" model="ir.ui.view">
+            <field name="name">Event Location Input Form</field>
+            <field name="model">jobcontrol.eventmanagement.location</field>
+            <field name="arch" type="xml">
+                <form string="Event Location Input">
+                    <header>
+                    </header>
+                    <group>
+                        <group name="location_details">
+                            <field name="partner_id" string="Address"/>
+                            <field name="pax_max"/>
+                            <field name="location_description"/>
+                        </group>
+                        <group>
+                            <field name="name"/>
+                            <field name="location_country"/>
+                            <field name="location_zip"/>
+                            <field name="location_city"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="room_lines" string="Rooms">
+                            <field name="rooms"
+                                   mode="tree">
+                                <tree create="True"
+                                      delete="True"
+                                      string="Rooms"
+                                      limit="40">
+                                    <field name="name" string="Name"/>
+                                    <field name="capacity_max" string="Capacity max"/>
+                                    <field name="qm" string="Square meter"/>
+                                    <field name="description"/>
+                                    <button type="object" name="get_formview_action" string="Open" icon="fa-edit"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="jobcontrol_eventmanagement_room_list">
+            <field name="name">Event Rooms list</field>
+            <field name="model">jobcontrol.eventmanagement.room</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="location_name"/>
+                    <field name="name"/>
+                    <field name="name" string="Session Name"/>
+                    <field name="capacity_max" string="Max Capacity"/>
+                    <field name="qm"/>
+                    <field name="description"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="jobcontrol_eventmanagement_room_form" model="ir.ui.view">
+            <field name="name">Event Room Input Form</field>
+            <field name="model">jobcontrol.eventmanagement.room</field>
+            <field name="arch" type="xml">
+                <form string="Event Room Input">
+                    <header>
+                    </header>
+                    <group name="room_details">
+                        <field name="location_id"/>
+                        <field name="name"/>
+                        <field name="capacity_max"/>
+                        <field name="qm"/>
+                        <field name="description"/>
+                    </group>
+                    <notebook>
+                        <page name="configuration_lines" string="Room Configurations">
+                            <field name="room_configurations"
+                                   mode="tree">
+                                <tree create="True"
+                                      delete="false"
+                                      string="Room Configurations"
+                                      limit="30">
+                                    <field name="name" string="Name"/>
+                                    <field name="capacity" string="Capacity"/>
+                                    <field name="description"/>
+                                    <button type="object" name="get_formview_action" string="Open" icon="fa-edit"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+
+                </form>
+            </field>
+        </record>
+
+        <record id="event_room_configuration_form" model="ir.ui.view">
+            <field name="name">Event Room Configuration Form</field>
+            <field name="model">jobcontrol.eventmanagement.room_configuration</field>
+            <field name="arch" type="xml">
+                <form string="Event Room Configuration Input">
+                    <header>
+                    </header>
+                    <group name="config_details">
+                        <field name="name"/>
+                        <field name="capacity"/>
+                        <field name="description"/>
+                    </group>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -5,7 +5,9 @@
         <field name="inherit_id" ref="purchase.purchase_order_form"/>
         <field name="arch" type="xml">
             <field name="date_order" position="before">
-                <field name="job_id"/>
+                <field name="session_id"/>
+                <field name="event_id" readonly="session_id"/>
+                <field name="job_id" readonly="event_id"/>
             </field>
         </field>
     </record>

@@ -11,10 +11,20 @@
         <field name="res_model">jobcontrol.job_category</field>
         <field name="view_mode">tree,form</field>
     </record>
-    <record id="action_jobcontrol_job_costs" model="ir.actions.act_window">
-        <field name="name">Job Costs</field>
+    <record id="action_jobcontrol_job_costs_list" model="ir.actions.act_window">
+        <field name="name">Job Costs List</field>
         <field name="res_model">jobcontrol.job_costs</field>
         <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="jobcontrol.costs_list_readonly"/>
+<!--        <field name="context">{ 'tree_view_ref':'jobcontrol.costs_list_readonly"',
+            'form_view_ref': 'jobcontrol.view_job_costs_form"'}
+        </field>-->
+    </record>
+    <record id="action_jobcontrol_job_costs_input" model="ir.actions.act_window">
+        <field name="name">Job Costs List Input</field>
+        <field name="res_model">jobcontrol.job_costs</field>
+        <field name="view_mode">tree</field>
+        <field name="view_id" ref="jobcontrol.costs_input"/>
     </record>
     <menuitem id="menu_jobcontrol_job"
               name="Jobs"
@@ -29,6 +39,15 @@
     <menuitem id="menu_jobcontrol_job_costs"
               name="Job Costs"
               parent="menu_jobcontrol"
-              action="action_jobcontrol_job_costs"
+    />
+    <menuitem id="menu_jobcontrol_job_costs_input"
+              name="Job Costs List Input"
+              parent="menu_jobcontrol_job_costs"
+              action="action_jobcontrol_job_costs_input"
+    />
+    <menuitem id="menu_jobcontrol_job_costs_list"
+              name="Job Costs List View"
+              parent="menu_jobcontrol_job_costs"
+              action="action_jobcontrol_job_costs_list"
     />
 </odoo>

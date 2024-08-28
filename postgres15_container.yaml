@@ -8,7 +8,7 @@ services:
     ports:
       - '5432:5432'
     volumes:
-      - 'oddo-17-postgres-dev:/bitnami/postgresql'
+      - 'odoo-17-event-management-dev:/bitnami/postgresql'
     environment:
       - POSTGRESQL_POSTGRES_PASSWORD=admin-demo
       - POSTGRESQL_PASSWORD=demo
@@ -34,7 +34,7 @@ services:
 #      - ODOO_PASSWORD=test_odoo
 #      - ODOO_LOAD_DEMO_DATA=yes
 volumes:
-  oddo-17-postgres-dev:
+  odoo-17-event-management-dev:
     external: true
 #  odoo-data:
 #    external: true

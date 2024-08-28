@@ -6,6 +6,8 @@
             <field name="arch" type="xml">
                 <form string="Job Input" class="o_sale_order">
                     <header>
+                        <button name="create_sales_order" type="object" string="Create Sales Order"
+                                class="oe_highlight"/>
                         <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
                     </header>
                     <sheet>
@@ -37,15 +39,13 @@
                                 <field name="description" widget="html"/>
                             </page>
                             <page string="Sales Quotations and Orders" name="sales_order_lines">
-                                <button name="create_sales_order" type="object" string="Create Sales Order"
-                                        class="oe_highlight" icon="fa-plus"/>
                                 <field
                                         name="sales_order_line"
                                         mode="tree"
                                         readonly="state == 'completed' or 'archived'">
-                                    <tree
-                                            string="Sales Order Lines"
-                                            limit="100">
+                                    <tree create="False"
+                                          string="Sales Order Lines"
+                                          limit="100">
 
                                         <field name="name" string="Number" readonly="1" decoration-bf="1"/>
                                         <field name="client_order_ref" optional="hide"/>
@@ -106,14 +106,13 @@
                                 </field>
                             </page>
 
-                            <page string="Sales Invoices" name="invoice_lines">
+                            <page string="Sales Invoices" name="sales_invoice_entries">
                                 <field
                                         name="sales_invoice_order_line"
                                         mode="tree"
-                                        type="xml"
-                                >
-                                    <tree string="Journal Entries">
-                                        <field name="name" decoration-danger="made_sequence_hole"/>
+                                        type="xml">
+                                    <tree string="Sales Invoice Entries" create="False">
+                                        <field name="name"/>
                                         <field name="company_currency_id" column_invisible="True"/>
                                         <field name="made_sequence_hole" column_invisible="True"/>
                                         <field name="invoice_date" string="Invoice Date" optional="hide"
@@ -144,10 +143,10 @@
                                         string="Purchase Order Lines"
                                         limit="100"
                                         readonly="state == 'completed' or 'archived'">
-                                    <tree
-                                            string="Purchase Lines"
-                                            expand="context.get('expand', False)"
-                                            limit="100">
+                                    <tree create="False"
+                                          string="Purchase Lines"
+                                          expand="context.get('expand', False)"
+                                          limit="100">
                                         <field name="name" readonly="1"/>
                                         <field name="partner_ref" readonly="1" optional="hide"/>
                                         <field name="partner_id" readonly="1"/>
@@ -181,6 +180,7 @@
                                         type="xml"
                                         readonly="state == 'completed' or 'archived'">
                                     <tree string="Journal Entries" sample="1" decoration-info="state == 'draft'"
+                                          create="False"
                                           expand="context.get('expand', False)">
                                         <field name="name" decoration-danger="made_sequence_hole"/>
                                         <field name="company_currency_id" column_invisible="True"/>
@@ -211,16 +211,33 @@
                                         mode="tree"
                                         type="xml"
                                         readonly="state == 'completed' or 'archived'">
-                                    <tree
-                                            editable="top">
+                                    <tree create="False">
                                         <field name="name"/>
                                         <field name="product_id"/>
                                         <field name="product_uom_category_id" invisible="1" optional="hide"/>
                                         <field name="product_uom_qty" string="Qty"/>
                                         <field name="product_uom"/>
                                         <field name="currency_id" invisible="1" optional="hide"/>
-                                        <field name="unit_price" string="Unit price" />
-                                        <field name="total_price" string="Total" widget="monetary"/>
+                                        <field name="not_billable" string="Not billable"/>
+                                        <field name="unit_price" string="Unit price" invisible="not_billable"/>
+                                        <field name="total_price" string="Total" widget="monetary"
+                                               invisible="not_billable"/>
+                                        <field name="invoiced" string="invoiced" invisible="not_billable"/>
+                                        <field name="description" string="Description" optional="hide"/>
+                                        <button type="object" name="get_formview_action" string="Open" icon="fa-edit"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Events" name="events_for_job">
+                                <field
+                                        name="job_event_line"
+                                        mode="tree"
+                                        type="xml"
+                                        readonly="state == 'completed' or 'archived'">
+                                    <tree create="False">
+                                        <field name="name"/>
+                                        <field name="start_date"/>
+                                        <field name="end_date"/>
                                         <field name="description" string="Description" optional="hide"/>
                                         <button type="object" name="get_formview_action" string="Open" icon="fa-edit"/>
                                     </tree>

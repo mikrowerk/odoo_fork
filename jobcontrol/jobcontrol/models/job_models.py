@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
-
 from odoo import models, fields, api
+from odoo.addons.purchase.models.purchase_order import PurchaseOrder
+
+from .job_utils import shorten_text, MAX_NAME_LENGTH
 
 JOB_STATE = [
     ('draft', "Draft"),
@@ -12,15 +14,6 @@ JOB_STATE = [
     ('archived', "Archived"),
     ('danger', "In Danger"),
 ]
-
-MAX_NAME_LENGTH = 28
-
-
-def shorten_text(text: str, max_length: int) -> str:
-    """
-    Shortens a text to max_length
-    """
-    return f"{(text[:max_length] + '...') if len(text) > max_length else text}"
 
 
 class JobCategory(models.Model):
@@ -96,6 +89,17 @@ class Job(models.Model):
         inverse_name='job_id',
         string='Job Costs'
     )
+    job_cost_line_to_invoice = fields.One2many(
+        comodel_name='jobcontrol.job_costs',
+        inverse_name='job_id',
+        string='Job Costs',
+        domain=[('invoiced', '=', False)]
+    )
+    job_event_line = fields.One2many(
+        comodel_name='jobcontrol.eventmanagement.event',
+        inverse_name='job_id',
+        string='Events'
+    )
 
     def _display_name(self):
         for record in self:
@@ -149,6 +153,23 @@ class JobSales(models.Model):
     _inherit = 'sale.order'
     job_id = fields.Many2one('jobcontrol.job', string="Job")
 
+    def _create_invoices(self, grouped=False, final=False, date=None):
+        """
+        Adding job ids to the generated invoices
+        """
+        print(f"Creating invoices for {self}")
+        job_id = 0
+        for order in self:
+            print(f"Creating invoices for job={order.job_id.id} order={order.ids}")
+            if order.job_id.id != 0:
+                job_id = order.job_id.id
+                break
+        res = super(JobSales, self)._create_invoices(grouped, final, date)
+        if job_id:
+            for move in res:
+                move.job_id = job_id
+        return res
+
 
 class JobPurchase(models.Model):
     """
@@ -156,80 +177,37 @@ class JobPurchase(models.Model):
     """
     _inherit = 'purchase.order'
     job_id = fields.Many2one('jobcontrol.job', string="Job")
+    session_id = fields.Many2one('jobcontrol.eventmanagement.session', string="Event Session")
+    event_id = fields.Many2one(comodel_name="jobcontrol.eventmanagement.event", string="Event")
 
+    def _prepare_invoice(self):
+        invoice_vals = super(JobPurchase, self)._prepare_invoice()
+        if self.job_id:
+            invoice_vals.update({
+                'job_id': self.job_id.id
+            })
+        return invoice_vals
 
-class JobInvoice(models.Model):
-    """
-    Extends the standard purchase model to have a relation to jobcontrol.job.
-    """
-    _inherit = 'account.move'
-    job_id = fields.Many2one('jobcontrol.job', string="Job")
-    job_number: fields.Char(related="job_id.number", string="Job Number")
-
-
-class JobCosts(models.Model):
-    """
-    Costs, which are related to a job
-    """
-    _name = 'jobcontrol.job_costs'
-    _description = 'Costs related to jobs'
-    _inherit = ['mail.thread', 'mail.activity.mixin']
-
-    name = fields.Char("Name", required=True)
-    description = fields.Text("Description", required=False)
-    display_name = fields.Char(compute="_display_name", string="Display")
-    job_id = fields.Many2one('jobcontrol.job', string="Job")
-    product_id = fields.Many2one(
-        comodel_name='product.product',
-        string="Product",
-        change_default=True, ondelete='restrict', index='btree_not_null',
-        domain="[('sale_ok', '=', True)]")
-    product_uom_category_id = fields.Many2one(related='product_id.uom_id.category_id', depends=['product_id'])
-    product_uom_qty = fields.Float(
-        string="Quantity",
-        digits='Product Unit of Measure', default=1.0,
-        store=True, readonly=False, required=True)
-    product_uom = fields.Many2one(
-        comodel_name='uom.uom',
-        string="Unit of Measure",
-        compute='_compute_product_uom',
-        store=True, readonly=False, precompute=True, ondelete='restrict',
-        domain="[('category_id', '=', product_uom_category_id)]")
-    unit_price = fields.Float(string="Unit Price", required=True, digits=(12, 4))
-    total_price = fields.Monetary(string="Total Price", compute='_compute_total_price', inverse="_compute_unit_price",
-                                  store=True)
-    company_id = fields.Many2one('res.company', store=True, copy=False,
-                                 string="Company",
-                                 default=lambda self: self.env.user.company_id.id)
-    currency_id = fields.Many2one('res.currency', string="Currency",
-                                  related='company_id.currency_id',
-                                  default=lambda self: self.env.user.company_id.currency_id.id)
-
-    def _compute_product_uom(self):
-        for line in self:
-            if not line.product_uom or (line.product_id.uom_id.id != line.product_uom.id):
-                line.product_uom = line.product_id.uom_id
-
-    @api.depends('product_id', 'product_uom_qty', 'unit_price')
-    def _compute_total_price(self):
-        for line in self:
-            line.total_price = line.unit_price * line.product_uom_qty
-            print(f"_compute_total_price: unit_price={line.unit_price} >> total_price={line.total_price}")
-
-    @api.onchange('product_id')
-    def _onchange_product_id(self):
-        for line in self:
-            line.unit_price = line.product_id.lst_price
-            print(f"_onchange_product_id:{line.product_id.name} >> line.unit_price={line.unit_price}")
-
-    @api.onchange('total_price')
-    def _compute_unit_price(self):
-        for line in self:
-            line.unit_price = line.total_price / line.product_uom_qty
-            print(f"_compute_unit_price: total_price={line.total_price} >> unit_price={line.unit_price}")
-
-    def _display_name(self):
+    @api.depends("event_id", "session_id")
+    def _compute_tax_totals(self):
         for record in self:
-            record.display_name = shorten_text(f"{record.name} {record.product_uom_qty} "
-                                               f"{record.product_uom.name}", MAX_NAME_LENGTH)
+            if record.session_id:
+                record.event_id = record.session_id.event_id.id
+                record.job_id = record.event_id.job_id.id
+                print(f"Set EventID={record.event_id.id} JobID={record.job_id.id}")
+        super(JobPurchase, self)._compute_tax_totals()
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals['session_id']:
+                session_rec = self.env['jobcontrol.eventmanagement.session'].browse(vals['session_id'])
+                if session_rec.event_id:
+                    vals['event_id'] = session_rec.event_id.id
+                    print(f"Set EventID={session_rec.event_id.id}")
+                    event_rec = self.env['jobcontrol.eventmanagement.event'].browse(session_rec.event_id.id)
+                    if event_rec.job_id:
+                        vals['job_id'] = event_rec.job_id.id
+                        print(f"Set JobID={event_rec.job_id.id}")
+
+        super().create(vals_list)

@@ -5,255 +5,233 @@
             <field name="model">jobcontrol.job</field>
             <field name="arch" type="xml">
                 <form string="Job Input" class="o_sale_order">
+                    <!--
                     <header>
                         <button name="create_sales_order" type="object" string="Create Sales Order"
                                 class="oe_highlight"/>
                         <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
                     </header>
-                    <sheet>
-                        <group name="job_header">
-                            <group name="partner_details">
-                                <field name="number"/>
-                                <field name="name"/>
-                                <field name="job_category_id"/>
-                                <field name="partner_company_id"
-                                       widget="res_partner_many2one"
-                                       context="{'res_partner_search_mode': 'customer', 'show_address': 1}"
-                                       placeholder="Type to find a customer..."
-                                       readonly="state in ['completed', 'archived']"/>
-                                <field name="partner_responsible_id"
-                                       widget="res_partner_many2one"
-                                       context="{'res_partner_search_mode': 'customer', 'show_address': 1}"
-                                       placeholder="Type to find the jobs contact person..."
-                                       readonly="state in ['completed', 'archived']"/>
-                            </group>
-                            <group name="internal_details">
-                                <field name="user_id" widget="many2one_avatar_user"/>
-                                <field name="date_started"/>
-                                <field name="date_completed"/>
-                                <field name="state"/>
-                            </group>
+                    -->
+
+                    <group name="job_header">
+                        <group name="job_details">
+                            <field name="number"/>
+                            <field name="name"/>
+                            <field name="category"/>
+
+                            <field name="date_started"/>
+                            <field name="date_completed"/>
+                            <field name="state"/>
+
                         </group>
-                        <notebook>
-                            <page string="Description">
-                                <field name="description" widget="html"/>
-                            </page>
-                            <page string="Sales Quotations and Orders" name="sales_order_lines">
-                                <field
-                                        name="sales_order_line"
-                                        mode="tree"
-                                        readonly="state == 'completed' or 'archived'">
-                                    <tree create="False"
-                                          string="Sales Order Lines"
-                                          limit="100">
+                        <group name="customer_details">
+                            <field name="user_id" widget="many2one_avatar_user"/>
+                            <field name="partner_company_id"
+                                   widget="res_partner_many2one"
+                                   context="{'res_partner_search_mode': 'customer', 'show_address': 1}"
+                                   placeholder="Type to find a customer..."
+                                   readonly="state in ['completed', 'archived']"/>
+                            <field name="partner_responsible_id"
+                                   widget="res_partner_many2one"
+                                   context="{'res_partner_search_mode': 'customer', 'show_address': 1}"
+                                   placeholder="Type to find the jobs contact person..."
+                                   readonly="state in ['completed', 'archived']"/>
+                        </group>
+                    </group>
 
-                                        <field name="name" string="Number" readonly="1" decoration-bf="1"/>
-                                        <field name="client_order_ref" optional="hide"/>
-                                        <field name="company_id" groups="!base.group_multi_company"
-                                               column_invisible="True"/>
-                                        <field name="company_id"
-                                               groups="base.group_multi_company"
-                                               column_invisible="True"/>
-                                        <field name="partner_id" readonly="1"/>
-                                        <field name="user_id" widget="many2one_avatar_user" optional="show"/>
-                                        <field name="team_id" optional="hide"/>
-                                        <field name="date_order" widget="date" optional="show"
-                                               readonly="state in ['cancel', 'sale']"/>
-                                        <field name="commitment_date" optional="hide"/>
-                                        <field name="expected_date" optional="hide"/>
-                                        <field name="validity_date" optional="hide"/>
-                                        <field name="currency_id" column_invisible="True"/>
-                                        <field name="amount_untaxed"
-                                               sum="Total Tax Excluded"
-                                               widget="monetary"
-                                               optional="hide"/>
-                                        <field name="amount_tax"
-                                               sum="Tax Total"
-                                               widget="monetary"
-                                               optional="hide"/>
-                                        <field name="amount_total"
-                                               sum="Total Tax Included"
-                                               widget="monetary"
-                                               decoration-bf="1"
-                                               decoration-info="invoice_status == 'to invoice'"
-                                               optional="show"/>
-                                        <field name="amount_to_invoice"
-                                               sum="Total Amount to invoice"
-                                               widget="monetary"
-                                               decoration-bf="1"
-                                               decoration-info="invoice_status == 'to invoice'"
-                                               optional="hide"/>
-                                        <field name="invoice_status"
-                                               decoration-success="invoice_status == 'invoiced'"
-                                               decoration-info="invoice_status == 'to invoice'"
-                                               decoration-warning="invoice_status == 'upselling'"
-                                               widget="badge"
-                                               optional="show"/>
-                                        <field name="tag_ids"
-                                               widget="many2many_tags"
-                                               options="{'color_field': 'color'}"
-                                               optional="hide"/>
-                                        <field name="state"
-                                               decoration-success="state == 'sale'"
-                                               decoration-info="state == 'draft'"
-                                               decoration-primary="state == 'sent'"
-                                               widget="badge"
-                                               optional="show"/>
-                                        <field name="message_needaction" column_invisible="True"/>
-                                        <field name="activity_ids" widget="list_activity" optional="show"/>
-                                        <button type="object" name="get_formview_action" string="Open" icon="fa-edit"/>
-                                    </tree>
-                                </field>
-                            </page>
+                    <notebook>
+                        <page string="Description">
+                            <field name="description" widget="html"/>
+                        </page>
+                        <page string="Sales Quotations and Orders" name="sales_order_lines">
+                            <field name="sales_order_line"
+                                   mode="tree">
+                                <tree create="True"
+                                      string="Sales Order Lines"
+                                      delete="False"
+                                      limit="100">
 
-                            <page string="Sales Invoices" name="sales_invoice_entries">
-                                <field
-                                        name="sales_invoice_order_line"
-                                        mode="tree"
-                                        type="xml">
-                                    <tree string="Sales Invoice Entries" create="False">
-                                        <field name="name"/>
-                                        <field name="company_currency_id" column_invisible="True"/>
-                                        <field name="made_sequence_hole" column_invisible="True"/>
-                                        <field name="invoice_date" string="Invoice Date" optional="hide"
-                                               readonly="state != 'draft'"/>
-                                        <field name="date" readonly="state in ['cancel', 'posted']"/>
+                                    <field name="name" string="Number" readonly="1" decoration-bf="1"/>
+                                    <field name="client_order_ref" optional="hide"/>
+                                    <field name="partner_id" readonly="1"/>
+                                    <field name="user_id" widget="many2one_avatar_user" optional="show"/>
+                                    <field name="date_order" widget="date" optional="show"
+                                           readonly="state in ['cancel', 'sale']"/>
+                                    <field name="commitment_date" optional="hide"/>
+                                    <field name="expected_date" optional="hide"/>
+                                    <field name="validity_date" optional="hide"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                    <field name="amount_untaxed"
+                                           sum="Total Tax Excluded"
+                                           widget="monetary"
+                                           optional="hide"/>
+                                    <field name="amount_tax"
+                                           sum="Tax Total"
+                                           widget="monetary"
+                                           optional="hide"/>
+                                    <field name="amount_total"
+                                           sum="Total Tax Included"
+                                           widget="monetary"
+                                           decoration-bf="1"
+                                           decoration-info="invoice_status == 'to invoice'"
+                                           optional="show"/>
+                                    <field name="amount_to_invoice"
+                                           sum="Total Amount to invoice"
+                                           widget="monetary"
+                                           decoration-bf="1"
+                                           decoration-info="invoice_status == 'to invoice'"
+                                           optional="hide"/>
+                                    <field name="invoice_status"
+                                           decoration-success="invoice_status == 'invoiced'"
+                                           decoration-info="invoice_status == 'to invoice'"
+                                           decoration-warning="invoice_status == 'upselling'"
+                                           widget="badge"
+                                           optional="show"/>
+                                    <field name="tag_ids"
+                                           widget="many2many_tags"
+                                           options="{'color_field': 'color'}"
+                                           optional="hide"/>
+                                    <field name="state"
+                                           decoration-success="state == 'sale'"
+                                           decoration-info="state == 'draft'"
+                                           decoration-primary="state == 'sent'"
+                                           widget="badge"
+                                           optional="show"/>
+                                    <field name="message_needaction" column_invisible="True"/>
+                                    <button type="object" name="get_formview_action" string="Open" icon="fa-edit"/>
+                                </tree>
+                            </field>
+                        </page>
 
-                                        <field name="partner_id" optional="show" readonly="state != 'draft'"/>
-                                        <field name="ref" optional="hide"/>
-                                        <field name="journal_id"/>
-                                        <field name="company_id" groups="base.group_multi_company" optional="show"/>
-                                        <field name="amount_total_signed" sum="Total Amount" string="Total"
-                                               decoration-bf="1"/>
-                                        <field name="state" widget="badge" decoration-info="state == 'draft'"
-                                               decoration-success="state == 'posted'"/>
-                                        <field name="currency_id" column_invisible="True"
-                                               readonly="state in ['cancel', 'posted']"/>
-                                        <field name="to_check" optional="hide" widget="boolean_toggle"/>
-                                        <field name="activity_ids" widget="list_activity" optional="hide"/>
-                                        <button type="object" name="get_formview_action" string="Open" icon="fa-edit"/>
-                                    </tree>
-                                </field>
-                            </page>
+                        <page string="Sales Invoices" name="sales_invoice_entries">
+                            <field name="sales_invoice_order_line"
+                                   mode="tree"
+                                   type="xml">
+                                <tree string="Sales Invoice Entries" create="True" delete="False">
+                                    <field name="name"/>
+                                    <field name="company_currency_id" column_invisible="True"/>
+                                    <field name="made_sequence_hole" column_invisible="True"/>
+                                    <field name="invoice_date" string="Invoice Date" optional="hide"
+                                           readonly="state != 'draft'"/>
+                                    <field name="date" readonly="state in ['cancel', 'posted']"/>
 
-                            <page string="Purchases" name="purchase_lines">
-                                <field
-                                        name="purchase_order_line"
-                                        class="o_sale_order"
-                                        string="Purchase Order Lines"
-                                        limit="100"
-                                        readonly="state == 'completed' or 'archived'">
-                                    <tree create="False"
-                                          string="Purchase Lines"
-                                          expand="context.get('expand', False)"
-                                          limit="100">
-                                        <field name="name" readonly="1"/>
-                                        <field name="partner_ref" readonly="1" optional="hide"/>
-                                        <field name="partner_id" readonly="1"/>
-                                        <field name="company_id" groups="!base.group_multi_company"
-                                               column_invisible="True"/>
-                                        <field name="company_id"
-                                               groups="base.group_multi_company"
-                                               column_invisible="True"/>
-                                        <field name="user_id" widget="many2one_avatar_user" optional="show"/>
-                                        <field name="date_order" readonly="1"/>
-                                        <field name="date_planned"
-                                               column_invisible="context.get('quotation_only', False)" optional="show"/>
-                                        <field name="currency_id" invisible="1" nolabel="1" readonly="1"/>
-                                        <field name="amount_untaxed" readonly="1" sum="Total untaxed"
-                                               widget="monetary"/>
-                                        <field name="amount_total" sum="Total amount" widget="monetary" readonly="1"
-                                               optional="show"/>
-                                        <field name="state" widget="badge"
-                                               decoration-info="state == 'draft'"
-                                               decoration-success="state == 'purchase'"/>
-                                        <field name="activity_ids" widget="list_activity" optional="show"/>
-                                        <button type="object" name="get_formview_action" string="Open" icon="fa-edit"/>
-                                    </tree>
-                                </field>
-                            </page>
+                                    <field name="partner_id" optional="show" readonly="state != 'draft'"/>
+                                    <field name="ref" optional="hide"/>
+                                    <field name="journal_id"/>
+                                    <field name="company_id" groups="base.group_multi_company" optional="show"/>
+                                    <field name="amount_total_signed" sum="Total Amount" string="Total"
+                                           decoration-bf="1"/>
+                                    <field name="state" widget="badge" decoration-info="state == 'draft'"
+                                           decoration-success="state == 'posted'"/>
+                                    <field name="currency_id" column_invisible="True"
+                                           readonly="state in ['cancel', 'posted']"/>
+                                    <field name="to_check" optional="hide" widget="boolean_toggle"/>
+                                    <field name="activity_ids" widget="list_activity" optional="hide"/>
+                                    <button type="object" name="get_formview_action" string="Open" icon="fa-edit"/>
+                                </tree>
+                            </field>
+                        </page>
 
-                            <page string="Purchase Invoices" name="purchase_invoice_lines">
-                                <field
-                                        name="purchase_invoice_order_line"
-                                        mode="tree"
-                                        type="xml"
-                                        readonly="state == 'completed' or 'archived'">
-                                    <tree string="Journal Entries" sample="1" decoration-info="state == 'draft'"
-                                          create="False"
-                                          expand="context.get('expand', False)">
-                                        <field name="name" decoration-danger="made_sequence_hole"/>
-                                        <field name="company_currency_id" column_invisible="True"/>
-                                        <field name="made_sequence_hole" column_invisible="True"/>
-                                        <field name="invoice_date" string="Invoice Date" optional="hide"
-                                               readonly="state != 'draft'"/>
-                                        <field name="date" readonly="state in ['cancel', 'posted']"/>
+                        <page string="Purchases" name="purchase_lines">
+                            <field name="purchase_order_line"
+                                   class="o_sale_order"
+                                   string="Purchase Order Lines"
+                                   limit="100">
+                                <tree create="True"
+                                      delete="False"
+                                      string="Purchase Orders"
+                                      limit="100">
+                                    <field name="name"/>
+                                    <field name="subject"/>
+                                    <field name="partner_ref"/>
+                                    <field name="partner_id"/>
+                                    <field name="user_id" widget="many2one_avatar_user" optional="show"/>
+                                    <field name="date_order"/>
+                                    <field name="date_planned"
+                                           column_invisible="context.get('quotation_only', False)" optional="show"/>
+                                    <field name="currency_id" invisible="1" nolabel="1" readonly="1"/>
+                                    <field name="amount_untaxed" readonly="1" sum="Total untaxed"
+                                           widget="monetary"/>
+                                    <field name="amount_total" sum="Total amount" widget="monetary" readonly="1"
+                                           optional="show"/>
+                                    <field name="state"/>
+                                    <button type="object" name="get_formview_action" string="Open" icon="fa-edit"/>
+                                </tree>
+                            </field>
+                        </page>
 
-                                        <field name="partner_id" optional="show" readonly="state != 'draft'"/>
-                                        <field name="ref" optional="hide"/>
-                                        <field name="journal_id"/>
-                                        <field name="company_id" groups="base.group_multi_company" optional="show"/>
-                                        <field name="amount_total_signed" sum="Total Amount" string="Total"
-                                               decoration-bf="1"/>
-                                        <field name="state" widget="badge" decoration-info="state == 'draft'"
-                                               decoration-success="state == 'posted'"/>
-                                        <field name="currency_id" column_invisible="True"
-                                               readonly="state in ['cancel', 'posted']"/>
-                                        <field name="to_check" optional="hide" widget="boolean_toggle"/>
-                                        <field name="activity_ids" widget="list_activity" optional="hide"/>
-                                        <button type="object" name="get_formview_action" string="Open" icon="fa-edit"/>
-                                    </tree>
-                                </field>
-                            </page>
-                            <page string="Costs" name="job_costs">
-                                <field
-                                        name="job_cost_line"
-                                        mode="tree"
-                                        type="xml"
-                                        readonly="state == 'completed' or 'archived'">
-                                    <tree create="False">
-                                        <field name="name"/>
-                                        <field name="product_id"/>
-                                        <field name="product_uom_category_id" invisible="1" optional="hide"/>
-                                        <field name="product_uom_qty" string="Qty"/>
-                                        <field name="product_uom"/>
-                                        <field name="currency_id" invisible="1" optional="hide"/>
-                                        <field name="not_billable" string="Not billable"/>
-                                        <field name="unit_price" string="Unit price" invisible="not_billable"/>
-                                        <field name="total_price" string="Total" widget="monetary"
-                                               invisible="not_billable"/>
-                                        <field name="invoiced" string="invoiced" invisible="not_billable"/>
-                                        <field name="description" string="Description" optional="hide"/>
-                                        <button type="object" name="get_formview_action" string="Open" icon="fa-edit"/>
-                                    </tree>
-                                </field>
-                            </page>
-                            <page string="Events" name="events_for_job">
-                                <field
-                                        name="job_event_line"
-                                        mode="tree"
-                                        type="xml"
-                                        readonly="state == 'completed' or 'archived'">
-                                    <tree create="False">
-                                        <field name="name"/>
-                                        <field name="start_date"/>
-                                        <field name="end_date"/>
-                                        <field name="description" string="Description" optional="hide"/>
-                                        <button type="object" name="get_formview_action" string="Open" icon="fa-edit"/>
-                                    </tree>
-                                </field>
-                            </page>
-                            <page string="Messages &amp; Notes &amp; Activities" name="job_chatter">
-                                <div class="oe_chatter">
-                                    <field name="message_follower_ids"/>
-                                    <field name="activity_ids"/>
-                                    <field name="message_ids"/>
-                                </div>
-                            </page>
-                        </notebook>
+                        <page string="Purchase Invoices" name="purchase_invoice_lines">
+                            <field name="purchase_invoice_order_line"
+                                   class="o_sale_order"
+                                   limit="100">
+                                <tree string="Journal Entries" sample="1" decoration-info="state == 'draft'"
+                                      create="True"
+                                      delete="False"
+                                      expand="context.get('expand', False)">
+                                    <field name="name" decoration-danger="made_sequence_hole"/>
+                                    <field name="company_currency_id" column_invisible="True"/>
+                                    <field name="made_sequence_hole" column_invisible="True"/>
+                                    <field name="invoice_date" string="Invoice Date" optional="hide"
+                                           readonly="state != 'draft'"/>
+                                    <field name="date" readonly="state in ['cancel', 'posted']"/>
 
-                    </sheet>
-
+                                    <field name="partner_id" optional="show" readonly="state != 'draft'"/>
+                                    <field name="ref" optional="hide"/>
+                                    <field name="journal_id"/>
+                                    <field name="company_id" groups="base.group_multi_company" optional="show"/>
+                                    <field name="amount_total_signed" sum="Total Amount" string="Total"
+                                           decoration-bf="1"/>
+                                    <field name="state" widget="badge" decoration-info="state == 'draft'"
+                                           decoration-success="state == 'posted'"/>
+                                    <field name="currency_id" column_invisible="True"
+                                           readonly="state in ['cancel', 'posted']"/>
+                                    <field name="to_check" optional="hide" widget="boolean_toggle"/>
+                                    <field name="activity_ids" widget="list_activity" optional="hide"/>
+                                    <button type="object" name="get_formview_action" string="Open" icon="fa-edit"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Costs" name="job_costs">
+                            <field name="job_cost_line"
+                                   class="o_sale_order"
+                                   limit="100">
+                                <tree create="True">
+                                    <field name="name"/>
+                                    <field name="product_id"/>
+                                    <field name="product_uom_category_id" invisible="1" optional="hide"/>
+                                    <field name="product_uom_qty" string="Qty"/>
+                                    <field name="product_uom"/>
+                                    <field name="currency_id" invisible="1" optional="hide"/>
+                                    <field name="not_billable" string="Not billable"/>
+                                    <field name="unit_price" string="Unit price" invisible="not_billable"/>
+                                    <field name="total_price" string="Total" widget="monetary"
+                                           invisible="not_billable"/>
+                                    <field name="invoiced" string="invoiced" invisible="not_billable"/>
+                                    <field name="description" string="Description" optional="hide"/>
+                                    <button type="object" name="get_formview_action" string="Open" icon="fa-edit"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Events" name="events_for_job" invisible="category != 'EVENT'">
+                            <field name="category" invisible="True"/>
+                            <field name="job_event_line"
+                                   class="o_sale_order"
+                                   limit="100">
+                                <tree create="True" delete="False">
+                                    <field name="name"/>
+                                    <field name="start_date"/>
+                                    <field name="end_date"/>
+                                    <field name="description" string="Description" optional="hide"/>
+                                    <button type="object" name="get_formview_action" string="Open" icon="fa-edit"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
                 </form>
             </field>
         </record>
@@ -267,7 +245,7 @@
                 <tree>
                     <field name="number"/>
                     <field name="name"/>
-                    <field name="job_category_id"/>
+                    <field name="category"/>
                     <field name="partner_company_id" optional="show"/>
                     <!--                    <field name="partner_responsible_id"/>-->
                     <field name="user_id" widget="many2one_avatar_user"/>
@@ -284,48 +262,5 @@
                 </tree>
             </field>
         </record>
-
-
-        <!-- actions opening views on models -->
-        <!--
-            <record model="ir.actions.act_window" id="jobcontrol.action_window">
-              <field name="name">jobcontrol window</field>
-              <field name="res_model">jobcontrol.jobcontrol</field>
-              <field name="view_mode">tree,form</field>
-            </record>
-        -->
-
-        <!-- server action to the one above -->
-        <!--
-            <record model="ir.actions.server" id="jobcontrol.action_server">
-              <field name="name">jobcontrol server</field>
-              <field name="model_id" ref="model_jobcontrol_jobcontrol"/>
-              <field name="state">code</field>
-              <field name="code">
-                action = {
-                  "type": "ir.actions.act_window",
-                  "view_mode": "tree,form",
-                  "res_model": model._name,
-                }
-              </field>
-            </record>
-        -->
-
-        <!-- Top menu item -->
-        <!--
-            <menuitem name="jobcontrol" id="jobcontrol.menu_root"/>
-        -->
-        <!-- menu categories -->
-        <!--
-            <menuitem name="Menu 1" id="jobcontrol.menu_1" parent="jobcontrol.menu_root"/>
-            <menuitem name="Menu 2" id="jobcontrol.menu_2" parent="jobcontrol.menu_root"/>
-        -->
-        <!-- actions -->
-        <!--
-            <menuitem name="List" id="jobcontrol.menu_1_list" parent="jobcontrol.menu_1"
-                      action="jobcontrol.action_window"/>
-            <menuitem name="Server to list" id="jobcontrol" parent="jobcontrol.menu_2"
-                      action="jobcontrol.action_server"/>
-        -->
     </data>
 </odoo>

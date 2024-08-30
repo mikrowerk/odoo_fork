@@ -26,7 +26,7 @@ class EventRoom(models.Model):
     location_id = fields.Many2one(comodel_name='jobcontrol.eventmanagement.location', string='Location')
     location_name = fields.Char(string="Location Name", related="location_id.name", store="True")
     room_configurations = fields.One2many(comodel_name='jobcontrol.eventmanagement.room_configuration',
-                                          string='Room Configuration', inverse_name="event_room_id",
+                                          string='Room Configurations', inverse_name="event_room_id",
                                           help='Room Setup Variants')
 
 

@@ -14,28 +14,10 @@ JOB_STATE = [
     ('archived', "Archived"),
     ('danger', "In Danger"),
 ]
-
-
-class JobCategory(models.Model):
-    """
-    Job Category allows assigning categories to jobs
-    """
-    _name = 'jobcontrol.job_category'
-    _description = 'categories for jobs'
-
-    name = fields.Char("Name", required=True)
-    description = fields.Text("Description", required=False)
-    display_name = fields.Char(compute="_display_name", string="Display")
-
-    job_lines = fields.One2many(
-        comodel_name='jobcontrol.job',
-        inverse_name='job_category_id',
-        string='Jobs'
-    )
-
-    def _display_name(self):
-        for record in self:
-            record.display_name = shorten_text(f"{record.name}", MAX_NAME_LENGTH)
+JOB_CATEGORY = [
+    ('STANDARD', 'Standard'),
+    ('EVENT', 'Event'),
+]
 
 
 class Job(models.Model):
@@ -50,6 +32,7 @@ class Job(models.Model):
     number = fields.Char("Job_ID", required=True)
     display_name = fields.Char(compute="_display_name", string="Display")
     description = fields.Text("Description", required=False)
+    category = fields.Selection(selection=JOB_CATEGORY, string="Category", default='STANDARD')
     state = fields.Selection(
         selection=JOB_STATE,
         string="Status",
@@ -83,7 +66,6 @@ class Job(models.Model):
         string='Purchase Invoice',
         domain=[('journal_id.type', '=', 'purchase')]
     )
-    job_category_id = fields.Many2one('jobcontrol.job_category', string="Job Category")
     job_cost_line = fields.One2many(
         comodel_name='jobcontrol.job_costs',
         inverse_name='job_id',
@@ -92,7 +74,7 @@ class Job(models.Model):
     job_cost_line_to_invoice = fields.One2many(
         comodel_name='jobcontrol.job_costs',
         inverse_name='job_id',
-        string='Job Costs',
+        string='Job Costs to invoice',
         domain=[('invoiced', '=', False)]
     )
     job_event_line = fields.One2many(
@@ -151,7 +133,8 @@ class JobSales(models.Model):
     Extends the standard sales model to have a relation to jobcontrol.job.
     """
     _inherit = 'sale.order'
-    job_id = fields.Many2one('jobcontrol.job', string="Job")
+    job_id = fields.Many2one(comodel_name='jobcontrol.job', string="Job")
+    event_id = fields.Many2one(comodel_name="jobcontrol.eventmanagement.event", string="Event")
 
     def _create_invoices(self, grouped=False, final=False, date=None):
         """
@@ -176,8 +159,9 @@ class JobPurchase(models.Model):
     Extends the standard purchase model to have a relation to jobcontrol.job.
     """
     _inherit = 'purchase.order'
-    job_id = fields.Many2one('jobcontrol.job', string="Job")
-    session_id = fields.Many2one('jobcontrol.eventmanagement.session', string="Event Session")
+    subject = fields.Char(string="Subject")
+    job_id = fields.Many2one(comodel_name='jobcontrol.job', string="Job")
+    session_id = fields.Many2one(comodel_name='jobcontrol.eventmanagement.session', string="Event Session")
     event_id = fields.Many2one(comodel_name="jobcontrol.eventmanagement.event", string="Event")
 
     def _prepare_invoice(self):

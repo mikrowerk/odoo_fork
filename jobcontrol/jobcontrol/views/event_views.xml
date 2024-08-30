@@ -28,6 +28,7 @@
                     <group>
                         <field name="job_id"/>
                         <field name="name"/>
+                        <field name="location_id"/>
                         <field name="responsible_customer_id"/>
                         <field name="responsible_agency_id"/>
                     </group>
@@ -39,10 +40,10 @@
                             <field name="end_date"/>
                         </group>
                     </group>
-                    <group>
-                        <field name="description"/>
-                    </group>
                     <notebook>
+                        <page string="Description">
+                            <field name="description"/>
+                        </page>
                         <page name="session_lines" string="Sessions">
                             <field name="session_lines"
                                    mode="tree">
@@ -51,18 +52,126 @@
                                       string="Event Sessions"
                                       limit="30">
                                     <field name="name" string="Session Name"/>
-                                    <field name="pax" string="Participants"/>
                                     <field name="start_date" string="Start Date"/>
                                     <field name="end_date" string="End Date"/>
                                     <field name="event_room_name" string="Room"/>
                                     <field name="event_room_config" string="Room Configuration" readonly="True"/>
                                     <field name="event_room_capacity" string="Room Capacity"/>
+                                    <field name="pax" string="Participants"/>
                                     <field name="description"/>
                                     <button type="object" name="get_formview_action" string="Open" icon="fa-edit"/>
                                 </tree>
                             </field>
                         </page>
+                        <page string="Sales Quotations and Orders" name="sales_order_lines">
+                            <field
+                                    name="sales_order_lines"
+                                    mode="tree">
+                                <tree create="True"
+                                      string="Sales Order Lines"
+                                      limit="100">
+
+                                    <field name="name" string="Number" readonly="1" decoration-bf="1"/>
+                                    <field name="client_order_ref" optional="hide"/>
+                                    <field name="partner_id" readonly="1"/>
+                                    <field name="user_id" widget="many2one_avatar_user" optional="show"/>
+                                    <field name="date_order" widget="date" optional="show"
+                                           readonly="state in ['cancel', 'sale']"/>
+                                    <field name="commitment_date" optional="hide"/>
+                                    <field name="expected_date" optional="hide"/>
+                                    <field name="validity_date" optional="hide"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                    <field name="amount_untaxed"
+                                           sum="Total Tax Excluded"
+                                           widget="monetary"
+                                           optional="hide"/>
+                                    <field name="amount_tax"
+                                           sum="Tax Total"
+                                           widget="monetary"
+                                           optional="hide"/>
+                                    <field name="amount_total"
+                                           sum="Total Tax Included"
+                                           widget="monetary"
+                                           decoration-bf="1"
+                                           decoration-info="invoice_status == 'to invoice'"
+                                           optional="show"/>
+                                    <field name="amount_to_invoice"
+                                           sum="Total Amount to invoice"
+                                           widget="monetary"
+                                           decoration-bf="1"
+                                           decoration-info="invoice_status == 'to invoice'"
+                                           optional="hide"/>
+                                    <field name="invoice_status"
+                                           decoration-success="invoice_status == 'invoiced'"
+                                           decoration-info="invoice_status == 'to invoice'"
+                                           decoration-warning="invoice_status == 'upselling'"
+                                           widget="badge"
+                                           optional="show"/>
+                                    <field name="tag_ids"
+                                           widget="many2many_tags"
+                                           options="{'color_field': 'color'}"
+                                           optional="hide"/>
+                                    <field name="state"
+                                           decoration-success="state == 'sale'"
+                                           decoration-info="state == 'draft'"
+                                           decoration-primary="state == 'sent'"
+                                           widget="badge"
+                                           optional="show"/>
+                                    <field name="message_needaction" column_invisible="True"/>
+                                    <button type="object" name="get_formview_action" string="Open" icon="fa-edit"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page name="event_purchase_order_items" string="Orders">
+                            <field name="purchase_order_lines"
+                                   class="o_sale_order"
+                                   string="Purchase Order Lines"
+                                   limit="100">
+                                <tree create="True"
+                                      string="Purchase Orders"
+                                      limit="100">
+                                    <field name="name"/>
+                                    <field name="subject"/>
+                                    <field name="partner_ref"/>
+                                    <field name="partner_id"/>
+                                    <field name="user_id" widget="many2one_avatar_user" optional="show"/>
+                                    <field name="date_order"/>
+                                    <field name="date_planned"
+                                           column_invisible="context.get('quotation_only', False)" optional="show"/>
+                                    <field name="currency_id" invisible="1" nolabel="1" readonly="1"/>
+                                    <field name="amount_untaxed" readonly="1" sum="Total untaxed"
+                                           widget="monetary"/>
+                                    <field name="amount_total" sum="Total amount" widget="monetary" readonly="1"
+                                           optional="show"/>
+                                    <field name="state"/>
+                                    <button type="object" name="get_formview_action" string="Open" icon="fa-edit"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page name="setup_items" string="Setup Items">
+                            <field name="setup_items"
+                                   class="o_sale_order"
+                                   string="Setup Items"
+                                   limit="100">
+                                <tree create="True"
+                                      string="Setup Items"
+                                      limit="100">
+                                    <field name="session_name"/>
+                                    <field name="subject"/>
+                                    <field name="name"/>
+                                    <field name="quantity"/>
+                                    <field name="product_id"/>
+                                    <field name="externally_supplied"/>
+                                    <field name="description"/>
+                                </tree>
+                            </field>
+                        </page>
                     </notebook>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
                 </form>
             </field>
         </record>
@@ -82,15 +191,16 @@
                         </group>
 
                         <group>
+                            <field name="location_id" invisible="True"/>
                             <field name="event_room_id" string="Assigned Room" style="width:20"/>
                             <field name="event_room_config_id" string="Room Configuration" style="width:20"/>
                             <field name="event_room_capacity" string="Room Capacity" readonly="True" style="width:20"/>
                         </group>
                     </group>
-                    <group>
-                        <field name="description"/>
-                    </group>
                     <notebook>
+                        <page string="Description">
+                            <field name="description"/>
+                        </page>
                         <page name="speakers" string="Speakers / Actors">
                             <field name="speakers" string="Speakers">
                                 <tree>
@@ -103,26 +213,21 @@
                             </field>
                         </page>
 
-                        <page name="catering_items" string="Catering Order">
-                            <field name="catering_order_line"
+                        <page name="session_order_items" string="Orders">
+                            <field name="session_order_lines"
                                    class="o_sale_order"
                                    string="Purchase Order Lines"
                                    limit="100">
                                 <tree create="True"
-                                      string="Catering Orders"
-                                      limit="100">
+                                      string="Orders"
+                                      limit="100"
+                                      default_order="subject asc, name asc">
+                                    <field name="subject"/>
                                     <field name="name"/>
-                                    <field name="partner_ref" />
-                                    <field name="partner_id" />
-                                    <!--
-                                    <field name="company_id" groups="!base.group_multi_company"
-                                           column_invisible="True"/>
-                                    <field name="company_id"
-                                           groups="base.group_multi_company"
-                                           column_invisible="True"/>
-                                           -->
+                                    <field name="partner_ref"/>
+                                    <field name="partner_id"/>
                                     <field name="user_id" widget="many2one_avatar_user" optional="show"/>
-                                    <field name="date_order" />
+                                    <field name="date_order"/>
                                     <field name="date_planned"
                                            column_invisible="context.get('quotation_only', False)" optional="show"/>
                                     <field name="currency_id" invisible="1" nolabel="1" readonly="1"/>
@@ -134,15 +239,26 @@
                                     <button type="object" name="get_formview_action" string="Open" icon="fa-edit"/>
                                 </tree>
                             </field>
-
                         </page>
 
                         <page name="setup_items" string="Setup Items">
-
+                            <field name="session_setup_items"
+                                   class="o_sale_order"
+                                   string="Setup Items"
+                                   limit="100">
+                                <tree create="True"
+                                      string="Setup Items"
+                                      limit="100">
+                                    <field name="subject"/>
+                                    <field name="name"/>
+                                    <field name="quantity"/>
+                                    <field name="product_id"/>
+                                    <field name="description"/>
+                                    <field name="externally_supplied"/>
+                                </tree>
+                            </field>
                         </page>
                     </notebook>
-
-
                 </form>
             </field>
         </record>
@@ -159,6 +275,49 @@
                     <field name="end_date"/>
                     <field name="description"/>
                 </tree>
+            </field>
+        </record>
+
+
+        <record model="ir.ui.view" id="jobcontrol_eventmanagement_setup_item_list">
+            <field name="name">eventmanagement setup item list</field>
+            <field name="model">jobcontrol.eventmanagement.room_setup_item</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="session_id"/>
+                    <field name="event_name" readonly="True"/>
+                    <field name="subject"/>
+                    <field name="name"/>
+                    <field name="description"/>
+                    <field name="comment"/>
+                    <field name="quantity"/>
+                    <field name="product_id"/>
+                    <field name="externally_supplied"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="jobcontrol_eventmanagement_setup_item_form">
+            <field name="name">eventmanagement setup item form</field>
+            <field name="model">jobcontrol.eventmanagement.room_setup_item</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+
+                    </header>
+                    <group>
+                        <field name="session_id"/>
+                        <field name="event_id" readonly="session_id"/>
+                        <field name="event_name" invisible="True"/>
+                        <field name="subject"/>
+                        <field name="name"/>
+                        <field name="description"/>
+                        <field name="comment"/>
+                        <field name="quantity"/>
+                        <field name="product_id"/>
+                        <field name="externally_supplied"/>
+                    </group>
+                </form>
             </field>
         </record>
 

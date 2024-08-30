@@ -39,7 +39,6 @@ class JobCosts(models.Model):
                                  string="Company",
                                  default=lambda self: self.env.user.company_id.id)
     currency_id = fields.Many2one('res.currency', string="Currency",
-                                  related='company_id.currency_id',
                                   default=lambda self: self.env.user.company_id.currency_id.id)
     effective_date = fields.Date(string="Effective Date", default=datetime.now())
     invoiced = fields.Boolean(string="Invoiced", compute="_compute_invoiced", store=True)

@@ -195,7 +195,7 @@ class JobPurchase(models.Model):
         super().create(vals_list)
 
 
-class JobStockMove(models.BaseModel):
+class JobStockMove(models.Model):
     _inherit = 'stock.picking'
     job_id = fields.Many2one(comodel_name='jobcontrol.job', string="Job")
     event_id = fields.Many2one(comodel_name="jobcontrol.eventmanagement.event", string="Event")

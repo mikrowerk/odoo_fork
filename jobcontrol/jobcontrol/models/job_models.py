@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api
-from odoo.addons.purchase.models.purchase_order import PurchaseOrder
-
-from .job_utils import shorten_text, MAX_NAME_LENGTH
+from .job_utils import shorten_text
 
 JOB_STATE = [
     ('draft', "Draft"),
@@ -85,7 +83,7 @@ class Job(models.Model):
 
     def _display_name(self):
         for record in self:
-            record.display_name = shorten_text(f"{record.number} {record.name}", MAX_NAME_LENGTH)
+            record.display_name = shorten_text(f"{record.number} {record.name}")
 
     def name_get(self):
         result = []
@@ -195,3 +193,15 @@ class JobPurchase(models.Model):
                         print(f"Set JobID={event_rec.job_id.id}")
 
         super().create(vals_list)
+
+
+class JobStockMove(models.BaseModel):
+    _inherit = 'stock.picking'
+    job_id = fields.Many2one(comodel_name='jobcontrol.job', string="Job")
+    event_id = fields.Many2one(comodel_name="jobcontrol.eventmanagement.event", string="Event")
+
+    @api.onchange('event_id', 'job_id')
+    @api.depends("event_id")
+    def _onchange_event_id(self):
+        if self.event_id:
+            self.job_id = self.event_id.job_id.id

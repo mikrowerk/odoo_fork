@@ -8,6 +8,7 @@
                 <tree
                         editable="top">
                     <field name="job_id"/>
+                    <field name="event_id"/>
                     <field name="effective_date" string="Date"/>
                     <field name="name"/>
                     <field name="product_id"/>
@@ -31,6 +32,7 @@
             <field name="arch" type="xml">
                 <tree>
                     <field name="job_id"/>
+                    <field name="event_id"/>
                     <field name="name"/>
                     <field name="product_id"/>
                     <field name="product_uom_category_id" invisible="1" optional="hide"/>
@@ -56,6 +58,7 @@
                     <sheet>
                         <group name="cost_details">
                             <field name="job_id"/>
+                            <field name="event_id"/>
                             <field name="name"/>
                             <field name="description" string="Description"/>
                         </group>

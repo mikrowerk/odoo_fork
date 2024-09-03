@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from odoo import models, fields, api
-from .job_utils import shorten_text, MAX_NAME_LENGTH
+from .job_utils import shorten_text
 
 
 class JobCostsTransient(models.Model):
@@ -138,4 +138,4 @@ class JobCostLineTransient(models.TransientModel):
     def _display_name(self):
         for record in self:
             record.display_name = shorten_text(f"{record.name} {record.product_uom_qty} "
-                                               f"{record.product_uom_name}", MAX_NAME_LENGTH)
+                                               f"{record.product_uom_name}")

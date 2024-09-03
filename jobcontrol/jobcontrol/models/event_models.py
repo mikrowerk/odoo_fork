@@ -59,7 +59,8 @@ class EventSession(models.Model):
 
     event_id = fields.Many2one('jobcontrol.eventmanagement.event', string="Event")
     event_name = fields.Char(related="event_id.name", string="Event", store="True")
-    location_id = fields.Integer(related="event_id.location_id.id", string="Location ID")
+    location_id = fields.Many2one('jobcontrol.eventmanagement.location', string="Location", readonly=True,
+                                  compute='_compute_location_id', store=True)
     speakers = fields.Many2many('res.partner', string="Speaker")
     pax = fields.Integer(string="Participants")
     event_room_id = fields.Many2one('jobcontrol.eventmanagement.room', string="Room",
@@ -77,6 +78,11 @@ class EventSession(models.Model):
         inverse_name='session_id',
         string='Purchase Orders'
     )
+
+    @api.depends('event_id')
+    def _compute_location_id(self):
+        if self.event_id:
+            self.location_id = self.event_id.location_id
 
 
 class EventRoomSetupItem(models.Model):

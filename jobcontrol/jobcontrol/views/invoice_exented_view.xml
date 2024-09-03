@@ -16,6 +16,7 @@
         <field name="arch" type="xml">
             <field name="payment_reference" position="before">
                 <field name="job_id"/>
+                <field name="event_id"/>
                 <button name="%(action_add_cost_lines)d" string="Add Job Costs" type="action"
                         class="btn-primary"/>
             </field>
@@ -39,6 +40,7 @@
                            type="xml">
                         <tree create="False">
                             <field name="job_id"/>
+                            <field name="event_id"/>
                             <field name="effective_date" string="Date"/>
                             <field name="name"/>
                             <field name="product_id"/>

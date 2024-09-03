@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from odoo import models, fields, api
-from .job_utils import shorten_text, MAX_NAME_LENGTH
+from .job_utils import shorten_text
 
 
 class JobCosts(models.Model):
@@ -16,6 +16,7 @@ class JobCosts(models.Model):
     description = fields.Text("Description", required=False)
     display_name = fields.Char(compute="_display_name", string="Display")
     job_id = fields.Many2one('jobcontrol.job', string="Job")
+    event_id = fields.Many2one('jobcontrol.eventmanagement.event', string="Event")
     product_id = fields.Many2one(
         comodel_name='product.product',
         string="Product",
@@ -82,4 +83,4 @@ class JobCosts(models.Model):
     def _display_name(self):
         for record in self:
             record.display_name = shorten_text(f"{record.name} {record.product_uom_qty} "
-                                               f"{record.product_uom.name}", MAX_NAME_LENGTH)
+                                               f"{record.product_uom.name}")

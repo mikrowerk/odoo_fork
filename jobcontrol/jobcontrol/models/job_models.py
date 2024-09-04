@@ -64,6 +64,10 @@ class Job(models.Model):
         string='Purchase Invoice',
         domain=[('journal_id.type', '=', 'purchase')]
     )
+    stock_move_lines = fields.One2many(
+        comodel_name='stock.picking',
+        inverse_name='job_id',
+        string='Stock Picking')
     job_cost_line = fields.One2many(
         comodel_name='jobcontrol.job_costs',
         inverse_name='job_id',
@@ -176,7 +180,7 @@ class JobPurchase(models.Model):
             if record.session_id:
                 record.event_id = record.session_id.event_id.id
                 record.job_id = record.event_id.job_id.id
-                print(f"Set EventID={record.event_id.id} JobID={record.job_id.id}")
+                print(f"@api.depends: Set EventID={record.event_id.id} JobID={record.job_id.id}")
         super(JobPurchase, self)._compute_tax_totals()
 
     @api.model_create_multi
@@ -190,7 +194,7 @@ class JobPurchase(models.Model):
                     event_rec = self.env['jobcontrol.eventmanagement.event'].browse(session_rec.event_id.id)
                     if event_rec.job_id:
                         vals['job_id'] = event_rec.job_id.id
-                        print(f"Set JobID={event_rec.job_id.id}")
+                        print(f"@api.model_create_multi: Set JobID={event_rec.job_id.id}")
 
         super().create(vals_list)
 

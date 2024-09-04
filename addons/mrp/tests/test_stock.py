@@ -227,6 +227,40 @@ class TestWarehouseMrp(common.TestMrpCommon):
         self.assertEqual(location_dest.id, self.depot_location.id)
         self.assertNotEqual(location_dest.id, self.stock_location.id)
 
+    def test_backorder_unpacking(self):
+        """ Test that movement of pack in backorder is correctly handled. """
+        warehouse = self.env['stock.warehouse'].search([('company_id', '=', self.env.company.id)], limit=1)
+        warehouse.write({'manufacture_steps': 'pbm'})
+
+        self.product_1.type = 'product'
+        self.env['stock.quant']._update_available_quantity(self.product_1, self.stock_location, 100)
+
+        mo_form = Form(self.env['mrp.production'])
+        mo_form.bom_id = self.bom_4
+        mo_form.product_qty = 100
+        mo = mo_form.save()
+        mo.action_confirm()
+
+        package = self.env['stock.quant.package'].create({})
+
+        picking = mo.picking_ids
+        picking.move_line_ids.write({
+            'quantity': 20,
+            'result_package_id': package.id,
+        })
+
+        res_dict = picking.button_validate()
+        wizard = Form(self.env[res_dict['res_model']].with_context(res_dict['context'])).save()
+        wizard.process()
+
+        backorder = picking.backorder_ids
+        backorder.move_line_ids.quantity = 80
+        backorder.button_validate()
+
+        self.assertEqual(picking.state, 'done')
+        self.assertEqual(backorder.state, 'done')
+        self.assertEqual(mo.move_raw_ids.move_line_ids.mapped('quantity_product_uom'), [20, 80])
+
 class TestKitPicking(common.TestMrpCommon):
     @classmethod
     def setUpClass(cls):
@@ -500,3 +534,40 @@ class TestKitPicking(common.TestMrpCommon):
         aggregate_kit_values = delivery.move_line_ids._get_aggregated_product_quantities(kit_name=bom_kit.product_id.name)
         self.assertEqual(len(aggregate_kit_values.keys()), 2)
         self.assertTrue(all('Component' in val for val in aggregate_kit_values), 'Only kit products should be included')
+
+    def test_scrap_consu_kit_not_available(self):
+        """
+        Scrap a consumable kit with one product not available in stock
+        """
+        self._test_scrap_kit_not_available('consu')
+
+    def test_scrap_storable_kit_not_available(self):
+        """
+        Scrap a storable kit with one product not available in stock
+        """
+        self._test_scrap_kit_not_available('product')
+
+    def _test_scrap_kit_not_available(self, kit_type):
+        bom = self.bom_4
+        bom.type = 'phantom'
+
+        kit = bom.product_id
+        component = bom.bom_line_ids.product_id
+        kit.type = kit_type
+        component.type = 'product'
+
+        scrap = self.env['stock.scrap'].create({
+            'product_id': kit.id,
+            'product_uom_id': kit.uom_id.id,
+            'scrap_qty': 1,
+            'bom_id': bom.id,
+        })
+
+        res = scrap.action_validate()
+        wizard = Form(self.env[res['res_model']].with_context(**res['context'])).save()
+        wizard.action_done()
+
+        self.assertEqual(scrap.state, 'done')
+        self.assertRecordValues(scrap.move_ids, [
+            {'product_id': component.id, 'quantity': 1, 'state': 'done'}
+        ])

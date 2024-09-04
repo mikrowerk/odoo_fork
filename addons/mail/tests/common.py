@@ -67,6 +67,7 @@ class MockEmail(common.BaseCase, MockSmtplibCase):
         build_email_origin = IrMailServer.build_email
         send_email_origin = IrMailServer.send_email
         mail_create_origin = MailMail.create
+        mail_private_send_origin = MailMail._send
         mail_unlink_origin = MailMail.unlink
         self.mail_unlink_sent = mail_unlink_sent
         self._init_mail_mock()
@@ -95,10 +96,12 @@ class MockEmail(common.BaseCase, MockSmtplibCase):
              patch.object(IrMailServer, 'build_email', autospec=True, wraps=IrMailServer, side_effect=_ir_mail_server_build_email) as build_email_mocked, \
              patch.object(IrMailServer, 'send_email', autospec=True, wraps=IrMailServer, side_effect=send_email_origin) as send_email_mocked, \
              patch.object(MailMail, 'create', autospec=True, wraps=MailMail, side_effect=_mail_mail_create) as mail_mail_create_mocked, \
+             patch.object(MailMail, '_send', autospec=True, wraps=MailMail, side_effect=mail_private_send_origin) as mail_mail_private_send_mocked, \
              patch.object(MailMail, 'unlink', autospec=True, wraps=MailMail, side_effect=_mail_mail_unlink):
             self.build_email_mocked = build_email_mocked
             self.send_email_mocked = send_email_mocked
             self.mail_mail_create_mocked = mail_mail_create_mocked
+            self.mail_mail_private_send_mocked = mail_mail_private_send_mocked
             yield
 
     def _init_mail_mock(self):
@@ -400,11 +403,11 @@ class MockEmail(common.BaseCase, MockSmtplibCase):
                 break
         else:
             debug_info = '\n'.join(
-                f'From: {mail.author_id} ({mail.email_from}) - Model{mail.model} / ResId {mail.res_id} (State: {mail.state})'
+                f'From: {mail.author_id} ({mail.email_from}) - Model {mail.model} / ResId {mail.res_id} (State: {mail.state})'
                 for mail in self._new_mails
             )
             raise AssertionError(
-                f'mail.mail not found for message {mail_message} / status {status} / record {record.model}, {record.id} / author {author}\n{debug_info}'
+                f'mail.mail not found for message {mail_message} / status {status} / record {record._name}, {record.id} / author {author}\n{debug_info}'
             )
         return mail
 
@@ -1259,6 +1262,7 @@ class MailCommon(common.TransactionCase, MailCase):
         cls.partner_admin = cls.env.ref('base.partner_admin')
         cls.company_admin = cls.user_admin.company_id
         cls.company_admin.write({
+            'country_id': cls.env.ref("base.be").id,
             'email': 'your.company@example.com',  # ensure email for various fallbacks
             'name': 'YourTestCompany',  # force for reply_to computation
         })

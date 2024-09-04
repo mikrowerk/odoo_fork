@@ -43,27 +43,27 @@ msgstr "Criterios de análisis"
 #. module: product_margin
 #: model:ir.model.fields,help:product_margin.field_product_product__sale_avg_price
 msgid "Avg. Price in Customer Invoices."
-msgstr "Precio medio en las facturas de cliente"
+msgstr "Precio medio en las facturas de clientes"
 
 #. module: product_margin
 #: model:ir.model.fields,help:product_margin.field_product_product__purchase_avg_price
 msgid "Avg. Price in Vendor Bills"
-msgstr "Precio Avg . en facturas de proveedores"
+msgstr "Precio medio en facturas de proveedores"
 
 #. module: product_margin
 #: model:ir.model.fields,field_description:product_margin.field_product_product__purchase_avg_price
 msgid "Avg. Purchase Unit Price"
-msgstr "Precio Unidad Promedio de Compra"
+msgstr "Precio unitario medio de compra"
 
 #. module: product_margin
 #: model:ir.model.fields,field_description:product_margin.field_product_product__sale_avg_price
 msgid "Avg. Sale Unit Price"
-msgstr "Precio Unidad Promedio de Venta"
+msgstr "Precio unitario medio de venta"
 
 #. module: product_margin
 #: model_terms:ir.ui.view,arch_db:product_margin.view_product_margin_form
 msgid "Avg. Unit Price"
-msgstr "Precio unidad promedio"
+msgstr "Precio unitario medio"
 
 #. module: product_margin
 #: model_terms:ir.ui.view,arch_db:product_margin.product_margin_form_view
@@ -73,7 +73,7 @@ msgstr "Cancelar"
 #. module: product_margin
 #: model_terms:ir.ui.view,arch_db:product_margin.view_product_margin_form
 msgid "Catalog Price"
-msgstr "Precio catálogo"
+msgstr "Precio de catálogo"
 
 #. module: product_margin
 #: model:ir.model.fields,field_description:product_margin.field_product_margin__create_uid
@@ -328,5 +328,5 @@ msgstr "Volumen de negocio"
 
 #. module: product_margin
 #: model:ir.model.fields,help:product_margin.field_product_product__total_margin
-msgid "Turnover - Standard price"
-msgstr "Volumen de negocio - Precio estándar"
+msgid "Turnover - Total cost"
+msgstr "Volumen de negocio - Coste total"

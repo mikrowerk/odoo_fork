@@ -18,7 +18,7 @@ class AccountEdiXmlCII(models.AbstractModel):
     _description = "Factur-x/XRechnung CII 2.2.0"
 
     def _export_invoice_filename(self, invoice):
-        return "factur-x.xml"
+        return f"{invoice.name.replace('/', '_')}_factur_x.xml"
 
     def _export_invoice_ecosio_schematrons(self):
         return {
@@ -181,6 +181,7 @@ class AccountEdiXmlCII(models.AbstractModel):
             'purchase_order_reference': invoice.purchase_order_reference if 'purchase_order_reference' in invoice._fields
                 and invoice.purchase_order_reference else invoice.ref or invoice.name,
             'contract_reference': invoice.contract_reference if 'contract_reference' in invoice._fields and invoice.contract_reference else '',
+            'document_context_id': "urn:cen.eu:en16931:2017#conformant#urn:factur-x.eu:1p0:extended",
         }
 
         # data used for IncludedSupplyChainTradeLineItem / SpecifiedLineTradeSettlement
@@ -204,14 +205,6 @@ class AccountEdiXmlCII(models.AbstractModel):
                 template_values['billing_start'] = min(date_range)
                 template_values['billing_end'] = max(date_range)
 
-        # One of the difference between XRechnung and Facturx is the following. Submitting a Facturx to XRechnung
-        # validator raises a warning, but submitting a XRechnung to Facturx raises an error.
-        supplier = invoice.company_id.partner_id.commercial_partner_id
-        if supplier.country_id.code == 'DE':
-            template_values['document_context_id'] = "urn:cen.eu:en16931:2017#compliant#urn:xoev-de:kosit:standard:xrechnung_2.2"
-        else:
-            template_values['document_context_id'] = "urn:cen.eu:en16931:2017#conformant#urn:factur-x.eu:1p0:extended"
-
         # Fixed taxes: add them as charges on the invoice lines
         for line_vals in template_values['invoice_line_vals_list']:
             line_vals['allowance_charge_vals_list'] = []
@@ -233,7 +226,7 @@ class AccountEdiXmlCII(models.AbstractModel):
         return template_values
 
     def _export_invoice(self, invoice):
-        vals = self._export_invoice_vals(invoice)
+        vals = self._export_invoice_vals(invoice.with_context(lang=invoice.partner_id.lang))
         errors = [constraint for constraint in self._export_invoice_constraints(invoice, vals).values() if constraint]
         xml_content = self.env['ir.qweb']._render('account_edi_ubl_cii.account_invoice_facturx_export_22', vals)
         return etree.tostring(cleanup_xml_node(xml_content), xml_declaration=True, encoding='UTF-8'), set(errors)
@@ -293,7 +286,7 @@ class AccountEdiXmlCII(models.AbstractModel):
 
         # ==== Invoice origin ====
 
-        invoice_origin_node = tree.find('./{*}OrderReference/{*}ID')
+        invoice_origin_node = tree.find('.//{*}BuyerOrderReferencedDocument/{*}IssuerAssignedID')
         if invoice_origin_node is not None:
             invoice.invoice_origin = invoice_origin_node.text
 
@@ -312,7 +305,7 @@ class AccountEdiXmlCII(models.AbstractModel):
 
         # ==== payment_reference ====
 
-        payment_reference_node = tree.find('.//{*}BuyerOrderReferencedDocument/{*}IssuerAssignedID')
+        payment_reference_node = tree.find('./{*}SupplyChainTradeTransaction/{*}ApplicableHeaderTradeSettlement/{*}PaymentReference')
         if payment_reference_node is not None:
             invoice.payment_reference = payment_reference_node.text
 

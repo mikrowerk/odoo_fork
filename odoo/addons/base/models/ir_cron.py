@@ -105,6 +105,7 @@ class ir_cron(models.Model):
             cron._try_lock()
             _logger.info('Manually starting job `%s`.', cron.name)
             cron.with_user(cron.user_id).with_context({'lastcall': cron.lastcall}).ir_actions_server_id.run()
+            self.env.flush_all()
             _logger.info('Job `%s` done.', cron.name)
             cron.lastcall = fields.Datetime.now()
         return True
@@ -390,6 +391,7 @@ class ir_cron(models.Model):
             _logger.info('Starting job `%s`.', cron_name)
             start_time = time.time()
             self.env['ir.actions.server'].browse(server_action_id).run()
+            self.env.flush_all()
             end_time = time.time()
             _logger.info('Job done: `%s` (%.3fs).', cron_name, end_time - start_time)
             if start_time and _logger.isEnabledFor(logging.DEBUG):
@@ -546,7 +548,7 @@ class ir_cron_trigger(models.Model):
     _allow_sudo_commands = False
 
     cron_id = fields.Many2one("ir.cron", index=True)
-    call_at = fields.Datetime()
+    call_at = fields.Datetime(index=True)
 
     @api.autovacuum
     def _gc_cron_triggers(self):

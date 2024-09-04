@@ -9,13 +9,14 @@
                 value="''"
                 domain="props.domain"
                 context="props.context"
-                className="'o_input flex-grow-1'"
+                className="'flex-grow-1'"
                 fieldString="props.fieldString"
                 placeholder="placeholder"
                 multiSelect="true"
                 getIds.bind="getIds"
                 update.bind="update"
             />
+            <span class="o_dropdown_button"/>
         </div>
     </t>
 

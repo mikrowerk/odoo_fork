@@ -228,7 +228,7 @@ class Project(models.Model):
 
     def _update_timesheets_sale_line_id(self):
         for project in self.filtered(lambda p: p.allow_billable and p.allow_timesheets):
-            timesheet_ids = project.sudo(False).mapped('timesheet_ids').filtered(lambda t: not t.is_so_line_edited and t._is_not_billed())
+            timesheet_ids = project.mapped('timesheet_ids').filtered(lambda t: not t.is_so_line_edited and t._is_updatable_timesheet())
             if not timesheet_ids:
                 continue
             for employee_id in project.sale_line_employee_ids.filtered(lambda l: l.project_id == project).employee_id:
@@ -583,7 +583,7 @@ class ProjectTask(models.Model):
         for task in self:
             task.analytic_account_active = task.analytic_account_active or task.so_analytic_account_id.active
 
-    @api.depends('partner_id.commercial_partner_id', 'sale_line_id.order_partner_id', 'parent_id.sale_line_id', 'project_id.sale_line_id', 'allow_billable')
+    @api.depends('partner_id', 'sale_line_id.order_partner_id', 'parent_id.sale_line_id', 'project_id.sale_line_id', 'allow_billable')
     def _compute_sale_line(self):
         super()._compute_sale_line()
         for task in self:

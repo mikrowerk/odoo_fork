@@ -191,7 +191,7 @@ class AccountPayment(models.Model):
         """ Add is_internal_transfer as a trigger to re-compute """
         return super()._compute_payment_method_line_fields()
 
-    @api.depends('l10n_latam_check_operation_ids.state')
+    @api.depends('l10n_latam_check_operation_ids.state', 'payment_method_line_id.code')
     def _compute_l10n_latam_check_current_journal(self):
         new_checks = self.filtered(lambda x: x.payment_method_line_id.code == 'new_third_party_checks')
         payments = self.env['account.payment'].search(
@@ -275,9 +275,9 @@ class AccountPayment(models.Model):
         res = super()._get_trigger_fields_to_synchronize()
         return res + ('l10n_latam_check_number',)
 
-    def _prepare_move_line_default_vals(self, write_off_line_vals=None):
+    def _prepare_move_line_default_vals(self, write_off_line_vals=None, force_balance=None):
         """ Add check name and operation on liquidity line """
-        res = super()._prepare_move_line_default_vals(write_off_line_vals=write_off_line_vals)
+        res = super()._prepare_move_line_default_vals(write_off_line_vals=write_off_line_vals, force_balance=force_balance)
         check = self if (self.payment_method_line_id.code == 'new_third_party_checks' or (self.payment_method_line_id.code == 'check_printing' and self.l10n_latam_manual_checks)) \
             else self.l10n_latam_check_id
         if check:

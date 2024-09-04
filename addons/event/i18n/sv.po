@@ -23,6 +23,7 @@
 # Martin Trigaux, 2023
 # Chrille Hedberg <hedberg.chrille@gmail.com>, 2023
 # Anders Wallenquist <anders.wallenquist@vertel.se>, 2024
+# Larissa Manderfeld, 2024
 # Jakob Krabbe <jakob.krabbe@vertel.se>, 2024
 # 
 msgid ""
@@ -2031,7 +2032,7 @@ msgstr "Bakgrund till märke"
 #. module: event
 #: model:ir.model.fields,field_description:event.field_event_event__badge_format
 msgid "Badge Dimension"
-msgstr "Dimension för märke"
+msgstr "Märkesdimension"
 
 #. module: event
 #: model:ir.actions.report,name:event.action_report_event_event_badge
@@ -4248,7 +4249,7 @@ msgstr "Etiketter"
 #: model_terms:ir.ui.view,arch_db:event.event_event_ticket_view_tree_from_event
 #: model_terms:ir.ui.view,arch_db:event.view_registration_search
 msgid "Taken"
-msgstr "Tagit"
+msgstr "Valda"
 
 #. module: event
 #: model:ir.model.fields,field_description:event.field_event_event_ticket__seats_taken
@@ -4997,4 +4998,4 @@ msgstr "imorgon"
 #. module: event
 #: model:mail.template,subject:event.event_reminder
 msgid "{{ object.event_id.name }}: {{ object.get_date_range_str() }}"
-msgstr "{{ objekt.event_id.namn }}: {{ objekt.get_date_range_str() }}"
+msgstr "{{ object.event_id.name }}: {{ object.get_date_range_str() }}"

@@ -4,9 +4,9 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.tools import float_repr, find_xml_value
 from odoo.tools.float_utils import float_round
 from odoo.tools.misc import formatLang
+from odoo.tools.zeep import Client
 
 from markupsafe import Markup
-from zeep import Client
 
 # -------------------------------------------------------------------------
 # UNIT OF MEASURE
@@ -54,7 +54,7 @@ EAS_MAPPING = {
     'DK': {'0184': 'company_registry', '0198': 'vat'},
     'EE': {'9931': 'vat'},
     'ES': {'9920': 'vat'},
-    'FI': {'0213': 'vat'},
+    'FI': {'0216': None},
     'FR': {'0009': 'siret', '9957': 'vat'},
     'SG': {'0195': 'l10n_sg_unique_entity_number'},
     'GB': {'9932': 'vat'},
@@ -82,7 +82,7 @@ EAS_MAPPING = {
     'PT': {'9946': 'vat'},
     'RO': {'9947': 'vat'},
     'RS': {'9948': 'vat'},
-    'SE': {'0007': 'vat'},
+    'SE': {'0007': 'company_registry'},
     'SI': {'9949': 'vat'},
     'SK': {'9950': 'vat'},
     'SM': {'9951': 'vat'},
@@ -118,9 +118,9 @@ class AccountEdiCommon(models.AbstractModel):
             return UOM_TO_UNECE_CODE.get(xmlid[line.product_uom_id.id], 'C62')
         return 'C62'
 
-    def _find_value(self, xpath, tree):
+    def _find_value(self, xpath, tree, nsmap=False):
         # avoid 'TypeError: empty namespace prefix is not supported in XPath'
-        nsmap = {k: v for k, v in tree.nsmap.items() if k is not None}
+        nsmap = nsmap or {k: v for k, v in tree.nsmap.items() if k is not None}
         return find_xml_value(xpath, tree, nsmap)
 
     # -------------------------------------------------------------------------
@@ -297,7 +297,8 @@ class AccountEdiCommon(models.AbstractModel):
 
         # Update the invoice.
         invoice.move_type = move_type
-        logs = self._import_fill_invoice_form(invoice, tree, qty_factor)
+        with invoice._get_edi_creation() as invoice:
+            logs = self._import_fill_invoice_form(invoice, tree, qty_factor)
         if invoice:
             body = Markup("<strong>%s</strong>") % \
                 _("Format used to import the invoice: %s",
@@ -312,7 +313,8 @@ class AccountEdiCommon(models.AbstractModel):
         # For UBL, we should override the computed tax amount if it is less than 0.05 different of the one in the xml.
         # In order to support use case where the tax total is adapted for rounding purpose.
         # This has to be done after the first import in order to let Odoo compute the taxes before overriding if needed.
-        self._correct_invoice_tax_amount(tree, invoice)
+        with invoice._get_edi_creation() as invoice:
+            self._correct_invoice_tax_amount(tree, invoice)
 
         # === Import the embedded PDF in the xml if some are found ===
 
@@ -349,12 +351,19 @@ class AccountEdiCommon(models.AbstractModel):
 
         return True
 
-    def _import_retrieve_and_fill_partner(self, invoice, name, phone, mail, vat, country_code=False):
-        """ Retrieve the partner, if no matching partner is found, create it (only if he has a vat and a name)
-        """
-        invoice.partner_id = self.env['res.partner']._retrieve_partner(name=name, phone=phone, mail=mail, vat=vat)
+    def _import_retrieve_and_fill_partner(self, invoice, name, phone, mail, vat, country_code=False, peppol_eas=False, peppol_endpoint=False):
+        """ Retrieve the partner, if no matching partner is found, create it (only if he has a vat and a name) """
+        if peppol_eas and peppol_endpoint:
+            domain = [('peppol_eas', '=', peppol_eas), ('peppol_endpoint', '=', peppol_endpoint)]
+        else:
+            domain = False
+        invoice.partner_id = self.env['res.partner'] \
+            .with_company(invoice.company_id) \
+            ._retrieve_partner(name=name, phone=phone, mail=mail, vat=vat, domain=domain)
         if not invoice.partner_id and name and vat:
             partner_vals = {'name': name, 'email': mail, 'phone': phone}
+            if peppol_eas and peppol_endpoint:
+                partner_vals.update({'peppol_eas': peppol_eas, 'peppol_endpoint': peppol_endpoint})
             country = self.env.ref(f'base.{country_code.lower()}', raise_if_not_found=False) if country_code else False
             if country:
                 partner_vals['country_id'] = country.id

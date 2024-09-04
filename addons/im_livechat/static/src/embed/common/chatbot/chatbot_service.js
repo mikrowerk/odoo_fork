@@ -87,9 +87,6 @@ export class ChatBotService {
             await this.postWelcomeSteps();
             this.save();
         }
-        if (this.savedState) {
-            this._restore();
-        }
         if (!this.currentStep?.expectAnswer) {
             this._triggerNextStep();
         } else if (this.livechatService.thread?.isLastMessageFromCustomer) {
@@ -321,8 +318,8 @@ export class ChatBotService {
      * Clear outdated storage.
      */
     async clear() {
-        const chatbotStorageKey = this.livechatService.sessionCookie
-            ? `im_livechat.chatbot.state.uuid_${this.livechatService.sessionCookie.uuid}`
+        const chatbotStorageKey = this.livechatService.savedState
+            ? `im_livechat.chatbot.state.uuid_${this.livechatService.savedState.uuid}`
             : "";
         for (let i = 0; i < browser.localStorage.length; i++) {
             const key = browser.localStorage.key(i);
@@ -409,7 +406,7 @@ export class ChatBotService {
 
     get savedState() {
         const raw = browser.localStorage.getItem(
-            `im_livechat.chatbot.state.uuid_${this.livechatService.sessionCookie?.uuid}`
+            `im_livechat.chatbot.state.uuid_${this.livechatService.savedState?.uuid}`
         );
         return raw ? JSON.parse(raw) : null;
     }

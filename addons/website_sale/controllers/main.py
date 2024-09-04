@@ -177,6 +177,9 @@ class WebsiteSale(payment_portal.PaymentPortal):
         order = post.get('order') or request.env['website'].get_current_website().shop_default_sort
         return 'is_published desc, %s, id desc' % order
 
+    def _add_search_subdomains_hook(self, search):
+        return []
+
     def _get_shop_domain(self, search, category, attrib_values, search_in_description=True):
         domains = [request.website.sale_product_domain()]
         if search:
@@ -188,6 +191,9 @@ class WebsiteSale(payment_portal.PaymentPortal):
                 if search_in_description:
                     subdomains.append([('website_description', 'ilike', srch)])
                     subdomains.append([('description_sale', 'ilike', srch)])
+                extra_subdomain = self._add_search_subdomains_hook(srch)
+                if extra_subdomain:
+                    subdomains.append(extra_subdomain)
                 domains.append(expression.OR(subdomains))
 
         if category:
@@ -268,6 +274,10 @@ class WebsiteSale(payment_portal.PaymentPortal):
     def _get_additional_shop_values(self, values):
         """ Hook to update values used for rendering website_sale.products template """
         return {}
+
+    def _get_additional_extra_shop_values(self, values, **post):
+        """ Hook to update values used for rendering website_sale.products template """
+        return self._get_additional_shop_values(values)
 
     @http.route([
         '/shop',
@@ -483,7 +493,7 @@ class WebsiteSale(payment_portal.PaymentPortal):
             values.update({'all_tags': all_tags, 'tags': tags})
         if category:
             values['main_object'] = category
-        values.update(self._get_additional_shop_values(values))
+        values.update(self._get_additional_extra_shop_values(values, **post))
         return request.render("website_sale.products", values)
 
     @http.route(['/shop/<model("product.template"):product>'], type='http', auth="public", website=True, sitemap=True)
@@ -810,7 +820,7 @@ class WebsiteSale(payment_portal.PaymentPortal):
             'suggested_products': [],
         })
         if order:
-            order.order_line.filtered(lambda l: not l.product_id.active).unlink()
+            order.order_line.filtered(lambda l: l.product_id and not l.product_id.active).unlink()
             values['suggested_products'] = order._cart_accessories()
             values.update(self._get_express_shop_payment_values(order))
 
@@ -965,7 +975,7 @@ class WebsiteSale(payment_portal.PaymentPortal):
                 { # For the cart_notification
                     'id': line.id,
                     'image_url': order.website_id.image_url(line.product_id, 'image_128'),
-                    'quantity': line.product_uom_qty,
+                    'quantity': line._get_displayed_quantity(),
                     'name': line.name_short,
                     'description': line._get_sale_order_line_multiline_description_variants(),
                     'line_price_total': line.price_total if show_tax else line.price_subtotal,
@@ -1252,10 +1262,9 @@ class WebsiteSale(payment_portal.PaymentPortal):
                 else:
                     address_mode = kw.get('mode')
                     if not address_mode:
+                        address_mode = 'shipping'
                         if partner_id == order.partner_invoice_id.id:
                             address_mode = 'billing'
-                        elif partner_id == order.partner_shipping_id.id:
-                            address_mode = 'shipping'
 
                     # Make sure the address exists and belongs to the customer of the SO
                     partner_sudo = Partner.browse(partner_id).exists()
@@ -1267,7 +1276,7 @@ class WebsiteSale(payment_portal.PaymentPortal):
                         billing_partners = partners_sudo.filtered(lambda p: p.type != 'delivery')
                         if partner_sudo not in billing_partners:
                             raise Forbidden()
-                    elif address_mode == 'shipping':
+                    else:
                         shipping_partners = partners_sudo.filtered(lambda p: p.type != 'invoice')
                         if partner_sudo not in shipping_partners:
                             raise Forbidden()
@@ -1344,7 +1353,7 @@ class WebsiteSale(payment_portal.PaymentPortal):
 
                 # TDE FIXME: don't ever do this
                 # -> TDE: you are the guy that did what we should never do in commit e6f038a
-                order.message_partner_ids = [(4, partner_id), (3, request.website.partner_id.id)]
+                order.message_partner_ids = [(4, order.partner_id.id), (3, request.website.partner_id.id)]
                 if not errors:
                     return request.redirect(kw.get('callback') or '/shop/confirm_order')
 
@@ -1559,7 +1568,7 @@ class WebsiteSale(payment_portal.PaymentPortal):
     @http.route(['/shop/checkout'], type='http', auth="public", website=True, sitemap=False)
     def checkout(self, **post):
         order_sudo = request.website.sale_get_order()
-
+        request.session['sale_last_order_id'] = order_sudo.id
         redirection = self.checkout_redirection(order_sudo)
         if redirection:
             return redirection
@@ -1633,7 +1642,6 @@ class WebsiteSale(payment_portal.PaymentPortal):
             return redirection
 
         order.order_line._compute_tax_id()
-        request.session['sale_last_order_id'] = order.id
         request.website.sale_get_order(update_pricelist=True)
         extra_step = request.website.viewref('website_sale.extra_info')
         if extra_step.active:
@@ -1687,14 +1695,11 @@ class WebsiteSale(payment_portal.PaymentPortal):
             'express_checkout_route': self._express_checkout_route,
             'landing_route': '/shop/payment/validate',
             'payment_method_unknown_id': request.env.ref('payment.payment_method_unknown').id,
+            'shipping_info_required': not order.only_services,
+            'shipping_address_update_route': self._express_checkout_shipping_route,
         })
         if request.website.is_public_user():
             payment_form_values['partner_id'] = -1
-        if request.website.enabled_delivery:
-            payment_form_values.update({
-                'shipping_info_required': not order.only_services,
-                'shipping_address_update_route': self._express_checkout_shipping_route,
-            })
         return payment_form_values
 
     def _get_shop_payment_values(self, order, **kwargs):
@@ -1823,7 +1828,9 @@ class WebsiteSale(payment_portal.PaymentPortal):
             return request.redirect('/shop')
 
         if order and not order.amount_total and not tx_sudo:
-            order.with_context(send_email=True).with_user(SUPERUSER_ID).action_confirm()
+            if order.state != 'sale':
+                order.with_context(send_email=True).with_user(SUPERUSER_ID).action_confirm()
+            request.website.sale_reset()
             return request.redirect(order.get_portal_url())
 
         # clean context and session, then redirect to the confirmation page

@@ -559,6 +559,20 @@ msgstr "Цей промокод програми вже активовано."
 #. odoo-javascript
 #: code:addons/pos_loyalty/static/src/overrides/models/loyalty.js:0
 #, python-format
+msgid "That promo code program is expired."
+msgstr "Той акційний промокод протерміновано."
+
+#. module: pos_loyalty
+#. odoo-javascript
+#: code:addons/pos_loyalty/static/src/overrides/models/loyalty.js:0
+#, python-format
+msgid "That promo code program is not yet valid."
+msgstr "Той акційний промокод ще не дійсний."
+
+#. module: pos_loyalty
+#. odoo-javascript
+#: code:addons/pos_loyalty/static/src/overrides/models/loyalty.js:0
+#, python-format
 msgid "That promo code program requires a specific pricelist."
 msgstr "Програма промо кодів вимагає спеціального прайс-листа."
 
@@ -820,7 +834,7 @@ msgstr "Ви повинні встановити '%s' перед налашту�
 #: code:addons/pos_loyalty/static/src/app/control_buttons/e_wallet_button/e_wallet_button.js:0
 #, python-format
 msgid "eWallet"
-msgstr "Електронний гаманецт"
+msgstr "Електронний гаманець"
 
 #. module: pos_loyalty
 #. odoo-javascript

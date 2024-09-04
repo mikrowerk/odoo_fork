@@ -210,7 +210,7 @@ class IrHttp(models.AbstractModel):
                 args[key].check_access_rule('read')
             except (odoo.exceptions.AccessError, odoo.exceptions.MissingError) as e:
                 # custom behavior in case a record is not accessible / has been removed
-                if handle_error := rule.endpoint.original_routing.get('handle_params_access_error'):
+                if handle_error := rule.endpoint.routing.get('handle_params_access_error'):
                     if response := handle_error(e):
                         werkzeug.exceptions.abort(response)
                 if isinstance(e, odoo.exceptions.MissingError):
@@ -274,6 +274,8 @@ class IrHttp(models.AbstractModel):
 
     @api.autovacuum
     def _gc_sessions(self):
+        if os.getenv("ODOO_SKIP_GC_SESSIONS"):
+            return
         ICP = self.env["ir.config_parameter"]
         max_lifetime = int(ICP.get_param('sessions.max_inactivity_seconds', http.SESSION_LIFETIME))
         http.root.session_store.vacuum(max_lifetime=max_lifetime)

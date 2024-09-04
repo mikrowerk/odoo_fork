@@ -41,6 +41,7 @@ export const WebsiteSale = publicWidget.Widget.extend(VariantMixin, cartHandlerM
         'mousemove .o_wsale_filmstip_wrapper': '_onMouseMove',
         'click .o_wsale_filmstip_wrapper' : '_onClickHandler',
         'submit': '_onClickConfirmOrder',
+        "change select[name='state_id']": "_onChangeState",
     }),
 
     /**
@@ -336,15 +337,14 @@ export const WebsiteSale = publicWidget.Widget.extend(VariantMixin, cartHandlerM
      * @private
      */
     _startZoom: function () {
-        // Do not activate image zoom on hover for mobile devices
         const salePage = document.querySelector(".o_wsale_product_page");
-        if (!salePage || uiUtils.isSmall() || this._getProductImageWidth() === "none") {
+        if (!salePage || this._getProductImageWidth() === "none") {
             return;
         }
         this._cleanupZoom();
         this.zoomCleanup = [];
-        // Zoom on hover
-        if (salePage.dataset.ecomZoomAuto) {
+        // Zoom on hover (except on mobile)
+        if (salePage.dataset.ecomZoomAuto && !uiUtils.isSmall()) {
             const images = salePage.querySelectorAll("img[data-zoom]");
             for (const image of images) {
                 const $image = $(image);
@@ -637,6 +637,13 @@ export const WebsiteSale = publicWidget.Widget.extend(VariantMixin, cartHandlerM
             return;
         }
         return this._changeCountry();
+    },
+    /**
+     * @private
+     * @param {Event} ev
+     */
+    _onChangeState: function (ev) {
+        return Promise.resolve();
     },
     /**
      * @private

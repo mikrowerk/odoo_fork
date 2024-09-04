@@ -37,11 +37,16 @@ class ProductTemplate(models.Model):
         if not self.sale_ok:
             self.available_in_pos = False
 
+    @api.onchange('detailed_type')
+    def _onchange_detailed_type(self):
+        if self.detailed_type == 'combo':
+            self.taxes_id = None
+
     @api.constrains('available_in_pos')
     def _check_combo_inclusions(self):
         for product in self:
             if not product.available_in_pos:
-                combo_name = self.env['pos.combo.line'].search([('product_id', 'in', product.product_variant_ids.ids)], limit=1).combo_id.name
+                combo_name = self.env['pos.combo.line'].sudo().search([('product_id', 'in', product.product_variant_ids.ids)], limit=1).combo_id.name
                 if combo_name:
                     raise UserError(_('You must first remove this product from the %s combo', combo_name))
 
@@ -68,9 +73,20 @@ class ProductTemplate(models.Model):
                     ])
         return res
 
+    @api.onchange('type')
+    def _onchange_type(self):
+        if self.type == "combo" and self.attribute_line_ids:
+            raise UserError(_("Combo products cannot contains variants or attributes"))
+        return super()._onchange_type()
+
 
 class ProductProduct(models.Model):
     _inherit = 'product.product'
+
+    @api.onchange('detailed_type')
+    def _onchange_detailed_type(self):
+        if self.detailed_type == 'combo':
+            self.taxes_id = None
 
     @api.ondelete(at_uninstall=False)
     def _unlink_except_active_pos_session(self):

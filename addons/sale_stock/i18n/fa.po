@@ -4,9 +4,8 @@
 # 
 # Translators:
 # Ali Reza Feizi Derakhshi, 2023
-# fardin mardani, 2023
+# fardin mardani <fmardani0@gmail.com>, 2023
 # سید محمد آذربرا <mohammadazarbara98@gmail.com>, 2023
-# Yousef Shadmanesh <y.shadmanesh@gmail.com>, 2023
 # Hamid Ahmadimoghaddam, 2023
 # Hamid Darabi, 2023
 # Mohsen Mohammadi <iammohsen.123@gmail.com>, 2023
@@ -14,14 +13,16 @@
 # Martin Trigaux, 2023
 # Hamed Mohammadi <hamed@dehongi.com>, 2023
 # Hanna Kheradroosta, 2024
+# Mostafa Barmshory <mostafa.barmshory@gmail.com>, 2024
+# Yousef Shadmanesh <y.shadmanesh@gmail.com>, 2024
 # 
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-15 10:37+0000\n"
+"POT-Creation-Date: 2024-08-13 10:28+0000\n"
 "PO-Revision-Date: 2023-10-26 23:09+0000\n"
-"Last-Translator: Hanna Kheradroosta, 2024\n"
+"Last-Translator: Yousef Shadmanesh <y.shadmanesh@gmail.com>, 2024\n"
 "Language-Team: Persian (https://app.transifex.com/odoo/teams/41243/fa/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -104,6 +105,11 @@ msgid ""
 "  - Timesheet: the quantity is the sum of hours recorded on tasks linked to this sale line\n"
 "  - Stock Moves: the quantity comes from confirmed pickings\n"
 msgstr ""
+"باتوجه به پیکربندی محصول، مقدار تحویل شده می‌تواند به طور خودکار با مکانیزم محاسبه شود:\n"
+" - دستی: کمیت به صورت دستی روی خط تنظیم می‌شود\n"
+" - تحلیلی از هزینه‌ها: کمیت مجموع مقدار از هزینه‌های ثبت شده است\n"
+" - برگه کارکرد: مقدار عبارت است از مجموع ساعات ضبط شده بر روی وظایف مربوط به این سطر فروش است\n"
+" - انتقال موجودی: کمیت از برداشت‌های تاییدشده بدست می‌آید.\n"
 
 #. module: sale_stock
 #. odoo-javascript
@@ -312,7 +318,7 @@ msgstr "اینکوترمز"
 #. module: sale_stock
 #: model:ir.model.fields,field_description:sale_stock.field_sale_order__incoterm_location
 msgid "Incoterm Location"
-msgstr ""
+msgstr "محل اصطلاحات بازرگانی"
 
 #. module: sale_stock
 #: model_terms:ir.ui.view,arch_db:sale_stock.report_delivery_document_inherit_sale_stock
@@ -472,6 +478,11 @@ msgid "Product"
 msgstr "محصول"
 
 #. module: sale_stock
+#: model:ir.model,name:sale_stock.model_stock_move_line
+msgid "Product Moves (Stock Move Line)"
+msgstr "انتقال محصول (مسیر انتقال موجودی)"
+
+#. module: sale_stock
 #: model:ir.model.fields,field_description:sale_stock.field_sale_order_line__qty_available_today
 msgid "Qty Available Today"
 msgstr "تعداد موجود امروز"
@@ -619,6 +630,11 @@ msgstr "ارسال محصولات در اسرع وقت، با سفارشات ب�
 #: model:ir.model.fields,field_description:sale_stock.field_sale_order__picking_policy
 msgid "Shipping Policy"
 msgstr "سیاست حمل و نقل"
+
+#. module: sale_stock
+#: model:ir.model.fields.selection,name:sale_stock.selection__sale_order__delivery_status__started
+msgid "Started"
+msgstr ""
 
 #. module: sale_stock
 #: model:ir.model,name:sale_stock.model_stock_move

@@ -180,6 +180,10 @@ class StockMove(models.Model):
         :param forced_quantity: under some circunstances, the quantity to value is different than
             the initial demand of the move (Default value = None)
         """
+        svl_vals_list = self._get_out_svl_vals(forced_quantity)
+        return self.env['stock.valuation.layer'].sudo().create(svl_vals_list)
+
+    def _get_out_svl_vals(self, forced_quantity):
         svl_vals_list = []
         for move in self:
             move = move.with_company(move.company_id)
@@ -195,7 +199,7 @@ class StockMove(models.Model):
                 svl_vals['description'] = 'Correction of %s (modification of past move)' % (move.picking_id.name or move.name)
             svl_vals['description'] += svl_vals.pop('rounding_adjustment', '')
             svl_vals_list.append(svl_vals)
-        return self.env['stock.valuation.layer'].sudo().create(svl_vals_list)
+        return svl_vals_list
 
     def _create_dropshipped_svl(self, forced_quantity=None):
         """Create a `stock.valuation.layer` from `self`.
@@ -203,6 +207,10 @@ class StockMove(models.Model):
         :param forced_quantity: under some circunstances, the quantity to value is different than
             the initial demand of the move (Default value = None)
         """
+        svl_vals_list = self._get_dropshipped_svl_vals(forced_quantity)
+        return self.env['stock.valuation.layer'].sudo().create(svl_vals_list)
+
+    def _get_dropshipped_svl_vals(self, forced_quantity):
         svl_vals_list = []
         for move in self:
             move = move.with_company(move.company_id)
@@ -238,7 +246,7 @@ class StockMove(models.Model):
                 out_vals.update(common_vals)
                 svl_vals_list.append(out_vals)
 
-        return self.env['stock.valuation.layer'].sudo().create(svl_vals_list)
+        return svl_vals_list
 
     def _create_dropshipped_returned_svl(self, forced_quantity=None):
         """Create a `stock.valuation.layer` from `self`.
@@ -290,8 +298,7 @@ class StockMove(models.Model):
         # For every in move, run the vacuum for the linked product.
         products_to_vacuum = valued_moves['in'].mapped('product_id')
         company = valued_moves['in'].mapped('company_id') and valued_moves['in'].mapped('company_id')[0] or self.env.company
-        for product_to_vacuum in products_to_vacuum:
-            product_to_vacuum._run_fifo_vacuum(company)
+        products_to_vacuum._run_fifo_vacuum(company)
 
         return res
 
@@ -591,22 +598,29 @@ class StockMove(models.Model):
 
         if self.company_id.anglo_saxon_accounting:
             # Creates an account entry from stock_input to stock_output on a dropship move. https://github.com/odoo/odoo/issues/12687
-            if self._is_dropshipped():
-                if cost > 0:
-                    am_vals.append(self.with_company(self.company_id)._prepare_account_move_vals(acc_src, acc_valuation, journal_id, qty, description, svl_id, cost))
-                else:
-                    cost = -1 * cost
-                    am_vals.append(self.with_company(self.company_id)._prepare_account_move_vals(acc_valuation, acc_dest, journal_id, qty, description, svl_id, cost))
-            elif self._is_dropshipped_returned():
-                if cost > 0 and self.location_dest_id._should_be_valued():
-                    am_vals.append(self.with_company(self.company_id).with_context(is_returned=True)._prepare_account_move_vals(acc_valuation, acc_src, journal_id, qty, description, svl_id, cost))
-                elif cost > 0:
-                    am_vals.append(self.with_company(self.company_id).with_context(is_returned=True)._prepare_account_move_vals(acc_dest, acc_valuation, journal_id, qty, description, svl_id, cost))
-                else:
-                    cost = -1 * cost
-                    am_vals.append(self.with_company(self.company_id).with_context(is_returned=True)._prepare_account_move_vals(acc_valuation, acc_src, journal_id, qty, description, svl_id, cost))
+            anglosaxon_am_vals = self._prepare_anglosaxon_account_move_vals(acc_src, acc_dest, acc_valuation, journal_id, qty, description, svl_id, cost)
+            if anglosaxon_am_vals:
+                am_vals.append(anglosaxon_am_vals)
 
         return am_vals
+
+    def _prepare_anglosaxon_account_move_vals(self, acc_src, acc_dest, acc_valuation, journal_id, qty, description, svl_id, cost):
+        anglosaxon_am_vals = {}
+        if self._is_dropshipped():
+            if cost > 0:
+                anglosaxon_am_vals = self.with_company(self.company_id)._prepare_account_move_vals(acc_src, acc_valuation, journal_id, qty, description, svl_id, cost)
+            else:
+                cost = -1 * cost
+                anglosaxon_am_vals = self.with_company(self.company_id)._prepare_account_move_vals(acc_valuation, acc_dest, journal_id, qty, description, svl_id, cost)
+        elif self._is_dropshipped_returned():
+            if cost > 0 and self.location_dest_id._should_be_valued():
+                anglosaxon_am_vals = self.with_company(self.company_id).with_context(is_returned=True)._prepare_account_move_vals(acc_valuation, acc_src, journal_id, qty, description, svl_id, cost)
+            elif cost > 0:
+                anglosaxon_am_vals = self.with_company(self.company_id).with_context(is_returned=True)._prepare_account_move_vals(acc_dest, acc_valuation, journal_id, qty, description, svl_id, cost)
+            else:
+                cost = -1 * cost
+                anglosaxon_am_vals = self.with_company(self.company_id).with_context(is_returned=True)._prepare_account_move_vals(acc_valuation, acc_src, journal_id, qty, description, svl_id, cost)
+        return anglosaxon_am_vals
 
     def _get_analytic_distribution(self):
         return False

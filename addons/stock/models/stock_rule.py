@@ -218,6 +218,7 @@ class StockRule(models.Model):
             'origin': move_to_copy.origin or move_to_copy.picking_id.name or "/",
             'location_id': move_to_copy.location_dest_id.id,
             'location_dest_id': self.location_dest_id.id,
+            'rule_id': self.id,
             'date': new_date,
             'date_deadline': move_to_copy.date_deadline,
             'company_id': company_id,
@@ -549,7 +550,9 @@ class ProcurementGroup(models.Model):
         moves_domain = [
             ('state', 'in', ['confirmed', 'partially_available']),
             ('product_uom_qty', '!=', 0.0),
-            ('reservation_date', '<=', fields.Date.today())
+            '|',
+                ('reservation_date', '<=', fields.Date.today()),
+                ('picking_type_id.reservation_method', '=', 'at_confirm'),
         ]
         if company_id:
             moves_domain = expression.AND([[('company_id', '=', company_id)], moves_domain])

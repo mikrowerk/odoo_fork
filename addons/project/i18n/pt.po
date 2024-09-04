@@ -8,20 +8,21 @@
 # Luiz Fernando <lfpsgs@outlook.com>, 2023
 # Manuela Silva <mmsrs@sky.com>, 2023
 # Wil Odoo, 2023
-# Maitê Dietze, 2024
 # NumerSpiral HBG, 2024
 # Carlos Teles, 2024
-# Peter Lawrence Romão <peterromao@yahoo.co.uk>, 2024
 # Marta Marouço, 2024
+# Vasco Rodrigues, 2024
 # Rita Bastos, 2024
+# Maitê Dietze, 2024
+# Peter Lawrence Romão <peterromao@yahoo.co.uk>, 2024
 # 
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-29 10:44+0000\n"
+"POT-Creation-Date: 2024-08-13 10:26+0000\n"
 "PO-Revision-Date: 2023-10-26 23:09+0000\n"
-"Last-Translator: Rita Bastos, 2024\n"
+"Last-Translator: Peter Lawrence Romão <peterromao@yahoo.co.uk>, 2024\n"
 "Language-Team: Portuguese (https://app.transifex.com/odoo/teams/41243/pt/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -324,6 +325,9 @@ msgid ""
 "                            <i class=\"fa fa-fw o_button_icon fa-meh-o text-warning\" invisible=\"rating_avg &lt; 2.33 or rating_avg &gt;= 3.66\" title=\"Okay\"/>\n"
 "                            <i class=\"fa fa-fw o_button_icon fa-frown-o text-danger\" invisible=\"rating_avg &gt;= 2.33\" title=\"Dissatisfied\"/>"
 msgstr ""
+"<i class=\"fa fa-fw o_button_icon fa-smile-o text-success\" invisible=\"rating_avg &lt; 3.66\" title=\"Satisfied\"/>\n"
+"                            <i class=\"fa fa-fw o_button_icon fa-meh-o text-warning\" invisible=\"rating_avg &lt; 2.33 or rating_avg &gt;= 3.66\" title=\"Okay\"/>\n"
+"                            <i class=\"fa fa-fw o_button_icon fa-frown-o text-danger\" invisible=\"rating_avg &gt;= 2.33\" title=\"Dissatisfied\"/>"
 
 #. module: project
 #: model_terms:ir.ui.view,arch_db:project.edit_project
@@ -743,6 +747,7 @@ msgid "Allocated Time"
 msgstr ""
 
 #. module: project
+#: model_terms:ir.ui.view,arch_db:project.portal_my_task
 #: model_terms:ir.ui.view,arch_db:project.portal_my_task_allocated_hours_template
 msgid "Allocated Time:"
 msgstr ""
@@ -893,8 +898,6 @@ msgid "Assigned to"
 msgstr "Atribuído a"
 
 #. module: project
-#. odoo-python
-#: code:addons/project/controllers/portal.py:0
 #: model:ir.model.fields,field_description:project.field_project_task__user_ids
 #: model:ir.model.fields,field_description:project.field_project_task_burndown_chart_report__user_ids
 #: model:ir.model.fields,field_description:project.field_report_project_task_user__user_ids
@@ -902,7 +905,6 @@ msgstr "Atribuído a"
 #: model_terms:ir.ui.view,arch_db:project.project_sharing_project_task_view_form
 #: model_terms:ir.ui.view,arch_db:project.project_sharing_project_task_view_tree
 #: model_terms:ir.ui.view,arch_db:project.view_task_search_form_base
-#, python-format
 msgid "Assignees"
 msgstr "Responsáveis"
 
@@ -1897,6 +1899,11 @@ msgid "Email cc"
 msgstr "E-mail cc"
 
 #. module: project
+#: model:ir.model.fields,help:project.field_project_project__alias_domain
+msgid "Email domain e.g. 'example.com' in 'odoo@example.com'"
+msgstr "Domínio de e-mail, por exemplo, 'exemplo.com' em 'odoo@exemplo.com'"
+
+#. module: project
 #: model_terms:digest.tip,tip_description:project.digest_tip_project_1
 msgid "Emails sent to"
 msgstr "Emails enviados para"
@@ -1990,12 +1997,12 @@ msgstr "Arquivado em Kanban"
 #. module: project
 #: model_terms:ir.ui.view,arch_db:project.portal_my_home
 msgid "Follow and comments tasks of your projects"
-msgstr ""
+msgstr "Siga e comente tarefas dos seus projetos"
 
 #. module: project
 #: model_terms:ir.ui.view,arch_db:project.portal_my_home
 msgid "Follow the evolution of your projects"
-msgstr ""
+msgstr "Siga a evolução dos seus projetos"
 
 #. module: project
 #: model_terms:ir.ui.view,arch_db:project.edit_project
@@ -2419,7 +2426,7 @@ msgstr "Versão do Incidente"
 #. module: project
 #: model:ir.model.fields,help:project.field_project_task__duration_tracking
 msgid "JSON that maps ids from a many2one field to seconds spent"
-msgstr ""
+msgstr "JSON que mapeia ids de um campos de many2many para segundos gastos"
 
 #. module: project
 #: model_terms:ir.actions.act_window,help:project.act_project_project_2_project_task_all
@@ -3129,6 +3136,13 @@ msgid "Once a Month"
 msgstr "Uma vez por Mês"
 
 #. module: project
+#. odoo-python
+#: code:addons/project/controllers/portal.py:0
+#, python-format
+msgid "Only jpeg, png, bmp and tiff images are allowed as attachments."
+msgstr ""
+
+#. module: project
 #. odoo-javascript
 #: code:addons/project/static/src/project_sharing/components/chatter/chatter_composer.xml:0
 #, python-format
@@ -3679,7 +3693,7 @@ msgstr "Publicada"
 #: code:addons/project/static/src/project_sharing/components/chatter/chatter_messages.xml:0
 #, python-format
 msgid "Published on"
-msgstr ""
+msgstr "Publicado em"
 
 #. module: project
 #. odoo-javascript
@@ -3942,6 +3956,20 @@ msgstr "Erro de Envio de SMS"
 #: model_terms:ir.ui.view,arch_db:project.view_task_kanban
 msgid "Sad face"
 msgstr "Cara triste"
+
+#. module: project
+#. odoo-javascript
+#: code:addons/project/static/src/project_sharing/views/form/project_sharing_form_controller.js:0
+#, python-format
+msgid "Save the task to be able to drag images in description"
+msgstr ""
+
+#. module: project
+#. odoo-javascript
+#: code:addons/project/static/src/project_sharing/views/form/project_sharing_form_controller.js:0
+#, python-format
+msgid "Save the task to be able to paste images in description"
+msgstr ""
 
 #. module: project
 #. odoo-javascript
@@ -4549,6 +4577,7 @@ msgstr "Tarefa: Solicitação de Avaliação"
 #. odoo-python
 #: code:addons/project/models/project_project.py:0
 #: code:addons/project/models/project_project.py:0
+#: code:addons/project/models/project_project.py:0
 #: model:ir.actions.act_window,name:project.act_project_project_2_project_task_all
 #: model:ir.actions.act_window,name:project.action_view_task
 #: model:ir.actions.act_window,name:project.action_view_task_from_milestone
@@ -4635,6 +4664,15 @@ msgstr ""
 #: model:ir.model.fields,help:project.field_project_task__personal_stage_type_id
 msgid "The current user's personal task stage."
 msgstr ""
+
+#. module: project
+#. odoo-python
+#: code:addons/project/controllers/portal.py:0
+#, python-format
+msgid ""
+"The document does not exist or you do not have the rights to access it."
+msgstr ""
+"O documento não existe ou não tem os direitos necessários para aceder."
 
 #. module: project
 #. odoo-python
@@ -5645,6 +5683,13 @@ msgstr ""
 
 #. module: project
 #. odoo-javascript
+#: code:addons/project/static/src/project_sharing/components/chatter/chatter_composer.xml:0
+#, python-format
+msgid "state.message"
+msgstr ""
+
+#. module: project
+#. odoo-javascript
 #: code:addons/project/static/src/components/project_task_name_with_subtask_count_char_field/project_task_name_with_subtask_count_char_field.xml:0
 #, python-format
 msgid "sub-tasks)"
@@ -5702,7 +5747,9 @@ msgstr ""
 
 #. module: project
 #: model:mail.template,subject:project.rating_project_request_email_template
-msgid "{{ object.project_id.company_id.name }}: Satisfaction Survey"
+msgid ""
+"{{ object.project_id.company_id.name or user.env.company.name }}: "
+"Satisfaction Survey"
 msgstr ""
 
 #. module: project

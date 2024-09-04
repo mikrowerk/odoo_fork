@@ -195,7 +195,9 @@ class Website(models.Model):
         Checks if the website menu contains a record like url.
         :return: True if the menu contains a record like url
         """
-        return any(self.env['website.menu'].browse(self._get_menu_ids()).filtered(lambda menu: re.search(r"[/](([^/=?&]+-)?[0-9]+)([/]|$)", menu.url)))
+        return any(self.env['website.menu'].browse(self._get_menu_ids()).filtered(
+            lambda menu: menu.url and re.search(r"[/](([^/=?&]+-)?[0-9]+)([/]|$)", menu.url))
+        )
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -654,10 +656,12 @@ class Website(models.Model):
 
         if translated_ratio > 0.8:
             try:
+                database_id = self.env['ir.config_parameter'].sudo().get_param('database.uuid')
                 response = self._OLG_api_rpc('/api/olg/1/generate_placeholder', {
                     'placeholders': list(generated_content.keys()),
                     'lang': website.default_lang_id.name,
                     'industry': industry,
+                    'database_id': database_id,
                 })
                 name_replace_parser = re.compile(r"XXXX", re.MULTILINE)
                 for key in generated_content:
@@ -1115,7 +1119,8 @@ class Website(models.Model):
         # there is one on request) or return a random one.
 
         # The format of `httprequest.host` is `domain:port`
-        domain_name = (request and request.httprequest.host
+        domain_name = (
+            request and request.httprequest.host
             or hasattr(threading.current_thread(), 'url') and threading.current_thread().url
             or '')
         website_id = self.sudo()._get_current_website_id(domain_name, fallback=fallback)
@@ -1396,15 +1401,16 @@ class Website(models.Model):
             domain = AND([domain, self.website_domain()])
         pages = self.env['website.page'].sudo().search(domain)
         if self:
-            pages = pages._get_most_specific_pages()
+            pages = pages.with_context(website_id=self.id)._get_most_specific_pages()
         return pages.ids
 
     def _get_website_pages(self, domain=None, order='name', limit=None):
+        website = self.get_current_website()
         if domain is None:
             domain = []
-        domain += self.get_current_website().website_domain()
+        domain += website.website_domain()
         pages = self.env['website.page'].sudo().search(domain, order=order, limit=limit)
-        pages = pages._get_most_specific_pages()
+        pages = pages.with_context(website_id=website.id)._get_most_specific_pages()
         return pages
 
     def search_pages(self, needle=None, limit=None):
@@ -1612,6 +1618,15 @@ class Website(models.Model):
                 if f'data-v{asset_type}="{asset_version}"' in snippet:
                     return True
         return False
+
+    def _check_user_can_modify(self, record):
+        """ Verify that the current user can modify the given record.
+
+        :param record: record on which to perform the check
+        :raise AccessError: if the operation is forbidden
+        """
+        record.check_access_rights('write')
+        record.check_access_rule('write')
 
     def _disable_unused_snippets_assets(self):
         snippet_assets = self.env['ir.asset'].with_context(active_test=False).search_fetch(

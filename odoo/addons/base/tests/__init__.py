@@ -24,6 +24,7 @@ from . import test_ir_cron
 from . import test_ir_filters
 from . import test_ir_http
 from . import test_ir_mail_server
+from . import test_ir_mail_server_smtpd
 from . import test_ir_model
 from . import test_ir_module
 from . import test_ir_sequence
@@ -46,6 +47,7 @@ from . import test_search
 from . import test_split_table
 from . import test_sql
 from . import test_translate
+from . import test_tz
 # from . import test_uninstall  # loop
 from . import test_user_has_group
 from . import test_views
@@ -68,3 +70,4 @@ from . import test_pdf
 from . import test_neutralize
 from . import test_config_parameter
 from . import test_ir_module_category
+from . import test_num2words_ar

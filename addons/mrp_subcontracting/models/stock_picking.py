@@ -141,7 +141,7 @@ class StockPicking(models.Model):
             'bom_id': bom.id,
             'location_src_id': subcontract_move.picking_id.partner_id.with_company(subcontract_move.company_id).property_stock_subcontractor.id,
             'location_dest_id': subcontract_move.picking_id.partner_id.with_company(subcontract_move.company_id).property_stock_subcontractor.id,
-            'product_qty': subcontract_move.product_qty or subcontract_move.quantity,
+            'product_qty': subcontract_move.product_uom_qty or subcontract_move.quantity,
             'picking_type_id': warehouse.subcontracting_type_id.id,
             'date_start': subcontract_move.date - relativedelta(days=bom.produce_delay)
         }
@@ -181,3 +181,20 @@ class StockPicking(models.Model):
             finished_move.write({'move_dest_ids': [(4, move.id, False)]})
 
         all_mo.action_assign()
+
+    @api.onchange('location_id', 'location_dest_id')
+    def _onchange_locations(self):
+        moves = self.move_ids | self.move_ids_without_package
+        moves.filtered(lambda m: m.is_subcontract).update({
+            "location_dest_id": self.location_dest_id,
+        })
+        moves.filtered(lambda m: not m.is_subcontract).update({
+            "location_id": self.location_id,
+            "location_dest_id": self.location_dest_id,
+        })
+        if self._origin.location_id != self.location_id and any(line.quantity for line in self.move_ids.move_line_ids):
+            return {'warning': {
+                    'title': _("Locations to update"),
+                    'message': _("You might want to update the locations of this transfer's operations"),
+                }
+            }

@@ -20,7 +20,7 @@ This includes sales orders & invoices, purchases, material & time spend
     'version': '0.1.0',
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'sale', 'purchase', 'mail', 'stock'],
+    'depends': ['base', 'sale', 'purchase', 'mail', 'stock', 'project'],
     'application': True,
 
     # always loaded
@@ -37,7 +37,8 @@ This includes sales orders & invoices, purchases, material & time spend
         'views/event_views.xml',
         'views/location_views.xml',
         'views/event_menu.xml',
-        'views/stock_picking_extended_view.xml'
+        'views/stock_picking_extended_view.xml',
+        'views/project_extended_view.xml'
 
     ],
     # only loaded in demonstration mode

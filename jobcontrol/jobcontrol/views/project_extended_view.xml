@@ -1,0 +1,13 @@
+<odoo>
+    <record model="ir.ui.view" id="view_project_form_extend">
+        <field name="name">Job Relation</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="job_id"/>
+                <field name="event_id"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

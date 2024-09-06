@@ -84,6 +84,11 @@ class Job(models.Model):
         inverse_name='job_id',
         string='Events'
     )
+    task_management_line = fields.One2many(
+        comodel_name="project.project",
+        inverse_name="job_id",
+        string="Task Management"
+    )
 
     def _display_name(self):
         for record in self:
@@ -201,6 +206,19 @@ class JobPurchase(models.Model):
 
 class JobStockMove(models.Model):
     _inherit = 'stock.picking'
+    job_id = fields.Many2one(comodel_name='jobcontrol.job', string="Job")
+    event_id = fields.Many2one(comodel_name="jobcontrol.eventmanagement.event", string="Event")
+
+    @api.onchange('event_id', 'job_id')
+    @api.depends("event_id")
+    def _onchange_event_id(self):
+        if self.event_id:
+            self.job_id = self.event_id.job_id.id
+
+
+class JobProject(models.Model):
+    _inherit = 'project.project'
+    _description = 'Related Project-Tasks'
     job_id = fields.Many2one(comodel_name='jobcontrol.job', string="Job")
     event_id = fields.Many2one(comodel_name="jobcontrol.eventmanagement.event", string="Event")
 

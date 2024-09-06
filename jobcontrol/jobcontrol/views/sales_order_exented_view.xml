@@ -5,8 +5,8 @@
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
             <field name="validity_date" position="before">
+                <field name="job_id" />
                 <field name="event_id"/>
-                <field name="job_id" readonly="event_id"/>
             </field>
             <field name="payment_term_id" position="after">
                 <field name="amount_untaxed"/>

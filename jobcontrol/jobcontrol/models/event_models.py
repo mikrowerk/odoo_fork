@@ -44,6 +44,11 @@ class Event(models.Model):
         comodel_name='stock.picking',
         inverse_name='event_id',
         string='Stock Picking')
+    task_management_line = fields.One2many(
+        comodel_name="project.project",
+        inverse_name="event_id",
+        string="Task Management"
+    )
     setup_items = fields.One2many(
         comodel_name="jobcontrol.eventmanagement.room_setup_item",
         inverse_name="event_id", )

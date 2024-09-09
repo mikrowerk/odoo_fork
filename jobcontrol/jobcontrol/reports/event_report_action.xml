@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="report_jobcontrol_event_detail" model="ir.actions.report">
+        <field name="name">Event detail report</field>
+        <field name="model">jobcontrol.eventmanagement.event</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="binding_model_id" ref="model_jobcontrol_eventmanagement_event"/>
+        <field name="report_name">jobcontrol.eventmanagement_event_report</field>
+        <field name="report_file">jobcontrol.event_report_template</field>
+    </record>
+
+    <record model="ir.actions.server" id="do_test_action">
+        <field name="name">Test Event Action</field>
+        <field name="binding_model_id" ref="model_jobcontrol_eventmanagement_event"/>
+        <field name="model_id" ref="model_jobcontrol_eventmanagement_event"/>
+        <field name="binding_view_types">form</field>
+        <field name="state">code</field>
+        <field name="code">record.print_record()</field>
+    </record>
+
+</odoo>

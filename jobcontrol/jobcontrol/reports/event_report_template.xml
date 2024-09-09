@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="eventmanagement_event_report">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="event">
+                <t t-call="web.internal_layout">
+                    <div class="page">
+                        <table class="table table-condensed">
+                            <thead>
+                                <tr>
+                                    <td>Job</td><td><t t-esc="event.job_name"/></td>
+                                </tr>
+                                <tr>
+                                    <td>Event</td><td><t t-esc="event.name"/></td>
+                                </tr>
+                                <tr>
+                                    <td>Duration</td><td><t t-esc="event.start_date"/> - <t
+                                        t-esc="event.end_date"/></td>
+                                </tr>
+                                <tr>
+                                    <td>Location</td><td><t t-esc="event.location_name"/></td>
+                                </tr>
+                                <tr>
+                                    <td>Responsible Customer</td><td><t t-esc="event.responsible_customer_name"/></td>
+                                </tr>
+                                <tr>
+                                    <td>Responsible Agency</td><td><t t-esc="event.responsible_agency_name"/></td>
+                                </tr>
+                                <tr>
+                                    <td>Description</td><td><t t-esc="event.description"/></td>
+                                </tr>
+                            </thead>
+                            <tbody><tr><td></td></tr></tbody>
+
+                        </table>
+                        <t t-if="len(event.setup_items) > 0">
+                            <h5>Event general Setup Items</h5>
+                            <table class="table table-condensed">
+                                <thead>
+                                    <tr>
+                                        <th>Session</th>
+                                        <th>Subject</th>
+                                        <th>Item</th>
+                                        <th>Qty</th>
+                                        <th>Product</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="event.setup_items" t-as="setup_item">
+                                        <t t-if="setup_item.session_id.id == False">
+                                            <td><t t-esc="setup_item.session_id.name"/></td>
+                                            <td><t t-esc="setup_item.subject"/></td>
+                                            <td><t t-esc="setup_item.name"/></td>
+                                            <td><t t-esc="setup_item.quantity"/></td>
+                                            <td><t t-esc="setup_item.product_id.name"/></td>
+                                            <td><t t-esc="setup_item.description"/></td>
+                                        </t>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </t>
+                        <t t-if="len(event.purchase_order_lines) > 0">
+                            <h5>Event general Purchase Orders</h5>
+                            <table class="table table-condensed">
+                                <thead>
+                                    <tr>
+                                        <td>PO Reference</td>
+                                        <td>Subject</td>
+                                        <td>Vendor Ref</td>
+                                        <td>Vendor</td>
+                                        <td>Expected Arrival</td>
+                                        <td>Status</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <div t-foreach="event.purchase_order_lines" t-as="po_item">
+                                        <t t-if="po_item.session_id.id == False">
+                                            <tr>
+                                                <th><b><t t-esc="po_item.name"/></b></th>
+                                                <th><b><t t-esc="po_item.subject"/></b></th>
+                                                <th><b><t t-esc="po_item.partner_ref"/></b></th>
+                                                <th><b><t t-esc="po_item.partner_id.name"/></b></th>
+                                                <th><b><t t-esc="po_item.date_planned"/></b></th>
+                                                <th><b><t t-esc="po_item.state"/></b></th>
+
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                                <td colspan="5">
+                                                    <table class="table table-condensed">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Product</th>
+                                                                <th>Description</th>
+                                                                <th>Qty</th>
+                                                                <th>Expected Arrival</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr t-foreach="po_item.order_line" t-as="po_line">
+                                                                <td><t t-esc="po_line.product_id.name"/></td>
+                                                                <td><t t-esc="po_line.name"/></td>
+                                                                <td><t t-esc="po_line.product_qty"/></td>
+                                                                <td><t t-esc="po_line.date_planned"/></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </div>
+                                </tbody>
+                            </table>
+                        </t>
+
+                        <div t-foreach="event.session_lines" t-as="session">
+                            <div style="page-break-before: always;"/>
+                            <table class="table table-condensed">
+                                <thead>
+                                    <tr>
+                                        <th>Session Name</th>
+                                        <th>Start</th>
+                                        <th>End</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><t t-esc="session.name"/></td>
+                                        <td><t t-esc="session.start_date"/></td>
+                                        <td><t t-esc="session.end_date"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <t t-if="len(session.session_setup_items) > 0">
+                                <h5><t t-esc="session.name"/> Setup Items</h5>
+                                <table class="table table-condensed">
+                                    <thead>
+                                        <tr>
+                                            <th>Subject</th>
+                                            <th>Item</th>
+                                            <th>Qty</th>
+                                            <th>Product</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="session.session_setup_items" t-as="setup_item">
+                                            <td><t t-esc="setup_item.subject"/></td>
+                                            <td><t t-esc="setup_item.name"/></td>
+                                            <td><t t-esc="setup_item.quantity"/></td>
+                                            <td><t t-esc="setup_item.product_id.name"/></td>
+                                            <td><t t-esc="setup_item.description"/></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </t>
+                            <t t-if="len(session.session_purchase_lines) > 0">
+                                <h5><t t-esc="session.name"/>Purchase Orders</h5>
+                                <table class="table table-condensed">
+                                    <thead>
+                                        <tr>
+                                            <td>PO Reference</td>
+                                            <td>Subject</td>
+                                            <td>Vendor Ref</td>
+                                            <td>Vendor</td>
+                                            <td>Expected Arrival</td>
+                                            <td>Status</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <div t-foreach="session.session_purchase_lines" t-as="po_item">
+
+                                            <tr>
+                                                <th><b><t t-esc="po_item.name"/></b></th>
+                                                <th><b><t t-esc="po_item.subject"/></b></th>
+                                                <th><b><t t-esc="po_item.partner_ref"/></b></th>
+                                                <th><b><t t-esc="po_item.partner_id.name"/></b></th>
+                                                <th><b><t t-esc="po_item.date_planned"/></b></th>
+                                                <th><b><t t-esc="po_item.state"/></b></th>
+
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                                <td colspan="5">
+                                                    <table class="table table-condensed">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Product</th>
+                                                                <th>Description</th>
+                                                                <th>Qty</th>
+                                                                <th>Expected Arrival</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr t-foreach="po_item.order_line" t-as="po_line">
+                                                                <td><t t-esc="po_line.product_id.name"/></td>
+                                                                <td><t t-esc="po_line.name"/></td>
+                                                                <td><t t-esc="po_line.product_qty"/></td>
+                                                                <td><t t-esc="po_line.date_planned"/></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </div>
+                                    </tbody>
+                                </table>
+                            </t>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

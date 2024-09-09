@@ -27,6 +27,7 @@ class Event(models.Model):
         string="Responsible Agency Name",
         related="responsible_agency_id.complete_name", store="True")
     location_id = fields.Many2one('jobcontrol.eventmanagement.location', string="Location")
+    location_name = fields.Text(compute="_get_location_name")
     session_lines = fields.One2many(
         comodel_name="jobcontrol.eventmanagement.session", inverse_name="event_id",
         string="Session Lines")
@@ -52,6 +53,18 @@ class Event(models.Model):
     setup_items = fields.One2many(
         comodel_name="jobcontrol.eventmanagement.room_setup_item",
         inverse_name="event_id", )
+
+    @api.depends('location_id')
+    def _get_location_name(self):
+        if self.location_id:
+            self.location_name = f"{self.location_id.name}, {self.location_id.location_city}"
+        else:
+            self.location_name = ""
+
+    @api.model
+    def print_record(self):
+        self.ensure_one()
+        print(f"print_record: {self.name}")
 
 
 class EventSession(models.Model):
@@ -82,7 +95,7 @@ class EventSession(models.Model):
     event_room_capacity = fields.Integer(string="Room Capacity", related='event_room_config_id.capacity')
     session_setup_items = fields.One2many(comodel_name="jobcontrol.eventmanagement.room_setup_item",
                                           inverse_name="session_id", )
-    session_order_lines = fields.One2many(
+    session_purchase_lines = fields.One2many(
         comodel_name='purchase.order',
         inverse_name='session_id',
         string='Purchase Orders'

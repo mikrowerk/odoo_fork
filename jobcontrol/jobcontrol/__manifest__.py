@@ -38,7 +38,9 @@ This includes sales orders & invoices, purchases, material & time spend
         'views/location_views.xml',
         'views/event_menu.xml',
         'views/stock_picking_extended_view.xml',
-        'views/project_extended_view.xml'
+        'views/project_extended_view.xml',
+        'reports/event_report_action.xml',
+        'reports/event_report_template.xml'
 
     ],
     # only loaded in demonstration mode

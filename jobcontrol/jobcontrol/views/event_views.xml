@@ -122,7 +122,7 @@
                                 </tree>
                             </field>
                         </page>
-                        <page name="event_purchase_order_items" string="Orders">
+                        <page name="event_purchase_order_items" string="Purchase Orders">
                             <field name="purchase_order_lines"
                                    class="o_sale_order"
                                    string="Purchase Order Lines"
@@ -298,8 +298,8 @@
                             </field>
                         </page>
 
-                        <page name="session_order_items" string="Orders">
-                            <field name="session_order_lines"
+                        <page name="session_order_items" string="Purchase Orders">
+                            <field name="session_purchase_lines"
                                    class="o_sale_order"
                                    string="Purchase Order Lines"
                                    limit="100">

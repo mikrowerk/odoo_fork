@@ -2,12 +2,12 @@
 # Part of BrowseInfo. See LICENSE file for full copyright and licensing details.
 
 {
-    'name' : "Convert Purchase from Sales Order",
-    'version' : "17.0.0.1",
-    'category' : "Purchases",
+    'name': "Convert Purchase from Sales Order",
+    'version': "17.0.0.1",
+    'category': "Purchases",
     'license': 'OPL-1',
     'summary': 'This apps helps to Covert Purchase order from Sales Order',
-    'description' : """
+    'description': """
         Convert Purchase from Sales Order
         Convert Purchases from Sales Order
         Convert Purchase order from Sales Order
@@ -25,15 +25,15 @@
         ADD Purchases order from Sales Order
 
      """,
-    'author' : "BrowseInfo",
-    'website'  : "https://www.browseinfo.com",
-    'depends'  : [ 'base','sale_management','purchase','stock'],
-    'data'     : [  'security/ir.model.access.csv',
-                    'wizard/purchase_order_wizard_view.xml',
-                    'views/inherit_sale_order_view.xml',
-            ],      
-    'installable' : True,
-    'application' :  False,
-    "images":['static/description/Banner.gif'],
-    'live_test_url':'https://youtu.be/wS4f9hEABxY',
+    'author': "BrowseInfo",
+    'website': "https://www.browseinfo.com",
+    'depends': ['base', 'sale_management', 'purchase', 'stock', 'jobcontrol'],
+    'data': ['security/ir.model.access.csv',
+             'wizard/purchase_order_wizard_view.xml',
+             'views/inherit_sale_order_view.xml',
+             ],
+    'installable': True,
+    'application': False,
+    "images": ['static/description/Banner.gif'],
+    'live_test_url': 'https://youtu.be/wS4f9hEABxY',
 }

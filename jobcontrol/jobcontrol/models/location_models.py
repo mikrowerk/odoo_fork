@@ -9,6 +9,7 @@ class EventLocation(models.Model):
     name = fields.Char(string="Location Name", related="partner_id.complete_name", store="True")
     location_zip = fields.Char(string="Zip Code", related="partner_id.zip", store="True")
     location_city = fields.Char(string="City", related="partner_id.city", store="True")
+    contact_address = fields.Char(string="Contact Address", related="partner_id.contact_address", store="True")
     location_country = fields.Char(string="Country", related="partner_id.country_code", store="True")
     location_description = fields.Text(string="Location Description")
     pax_max = fields.Integer(string="PAX Max")

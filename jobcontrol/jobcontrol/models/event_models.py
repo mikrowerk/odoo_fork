@@ -66,6 +66,26 @@ class Event(models.Model):
         self.ensure_one()
         print(f"print_record: {self.name}")
 
+    @api.model
+    def has_event_only_setup_items(self) -> bool:
+        counter = 0
+        self.ensure_one()
+        for item in self.setup_items:
+            if not item.session_id:
+                counter += 1
+
+        return counter > 0
+
+    @api.model
+    def has_event_only_purchases(self) -> bool:
+        counter = 0
+        self.ensure_one()
+        for item in self.purchase_order_lines:
+            if not item.session_id:
+                counter += 1
+
+        return counter > 0
+
 
 class EventSession(models.Model):
     _name = 'jobcontrol.eventmanagement.session'

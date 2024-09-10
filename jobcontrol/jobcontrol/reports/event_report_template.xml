@@ -5,6 +5,7 @@
             <t t-foreach="docs" t-as="event">
                 <t t-call="web.internal_layout">
                     <div class="page">
+                        <h2><t t-esc="event.name"/> Fact Sheet</h2>
                         <table class="table table-condensed">
                             <thead>
                                 <tr>
@@ -18,7 +19,7 @@
                                         t-esc="event.end_date"/></td>
                                 </tr>
                                 <tr>
-                                    <td>Location</td><td><t t-esc="event.location_name"/></td>
+                                    <td>Location</td><td><t t-esc="event.location_id.contact_address"/></td>
                                 </tr>
                                 <tr>
                                     <td>Responsible Customer</td><td><t t-esc="event.responsible_customer_name"/></td>
@@ -33,12 +34,11 @@
                             <tbody><tr><td></td></tr></tbody>
 
                         </table>
-                        <t t-if="len(event.setup_items) > 0">
+                        <t t-if="event.has_event_only_setup_items()">
                             <h5>Event general Setup Items</h5>
                             <table class="table table-condensed">
                                 <thead>
-                                    <tr>
-                                        <th>Session</th>
+                                    <tr style="background-color:#bccde8">
                                         <th>Subject</th>
                                         <th>Item</th>
                                         <th>Qty</th>
@@ -47,96 +47,156 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr t-foreach="event.setup_items" t-as="setup_item">
-                                        <t t-if="setup_item.session_id.id == False">
-                                            <td><t t-esc="setup_item.session_id.name"/></td>
+                                    <t t-foreach="event.setup_items" t-as="setup_item">
+                                        <tr t-if="setup_item.session_id.id == False">
                                             <td><t t-esc="setup_item.subject"/></td>
                                             <td><t t-esc="setup_item.name"/></td>
                                             <td><t t-esc="setup_item.quantity"/></td>
                                             <td><t t-esc="setup_item.product_id.name"/></td>
                                             <td><t t-esc="setup_item.description"/></td>
-                                        </t>
-                                    </tr>
+                                        </tr>
+                                    </t>
                                 </tbody>
                             </table>
                         </t>
-                        <t t-if="len(event.purchase_order_lines) > 0">
+                        <t t-if="len(event.stock_move_lines) > 0">
+                            <h5>Event Deliveries</h5>
+                            <div t-foreach="event.stock_move_lines" t-as="delivery">
+                                <table class="table table-condensed">
+                                    <thead>
+                                        <tr style="background-color:#bccde8">
+                                            <td>Delivery Reference</td> <td><t t-esc="delivery.name"/></td>
+                                        </tr>
+                                        <tr><td>Destination</td> <td><t
+                                                t-esc="delivery.partner_id.contact_address"/></td></tr>
+                                        <tr><td>Scheduled</td> <td><t t-esc="delivery.scheduled_date"/></td></tr>
+                                        <tr><td>Date Done</td> <td><t t-esc="delivery.date_done"/></td></tr>
+                                        <tr><td>State</td> <td><t t-esc="delivery.state"/></td></tr>
+                                        <tr><td>Note</td> <td><t t-esc="delivery.note"/></td></tr>
+                                    </thead>
+                                </table>
+                                <table class="table table-condensed" style="margin:25px">
+                                    <thead>
+                                        <tr style="background-color:#bccde8">
+                                            <th>Product</th>
+                                            <th>Qty</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="delivery.move_line_ids" t-as="delivery_item">
+                                            <td><t t-esc="delivery_item.product_id.name"/></td>
+                                            <td><t t-esc="delivery_item.quantity"/></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </t>
+                        <t t-if="event.has_event_only_purchases()">
                             <h5>Event general Purchase Orders</h5>
-                            <table class="table table-condensed">
-                                <thead>
-                                    <tr>
-                                        <td>PO Reference</td>
-                                        <td>Subject</td>
-                                        <td>Vendor Ref</td>
-                                        <td>Vendor</td>
-                                        <td>Expected Arrival</td>
-                                        <td>Status</td>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <div t-foreach="event.purchase_order_lines" t-as="po_item">
-                                        <t t-if="po_item.session_id.id == False">
+                            <div t-foreach="event.purchase_order_lines" t-as="po_item">
+                                <t t-if="po_item.session_id.id == False">
+                                    <table class="table table-condensed">
+                                        <thead>
+                                            <tr style="background-color:#bccde8">
+                                                <td>PO Reference</td> <td><t t-esc="po_item.name"/></td>
+                                            </tr>
                                             <tr>
-                                                <th><b><t t-esc="po_item.name"/></b></th>
-                                                <th><b><t t-esc="po_item.subject"/></b></th>
-                                                <th><b><t t-esc="po_item.partner_ref"/></b></th>
-                                                <th><b><t t-esc="po_item.partner_id.name"/></b></th>
-                                                <th><b><t t-esc="po_item.date_planned"/></b></th>
-                                                <th><b><t t-esc="po_item.state"/></b></th>
+                                                <td>Subject</td><td><t t-esc="po_item.subject"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Vendor</td><td><t t-esc="po_item.partner_id.name"/></td>
+                                            </tr>
 
+                                            <tr>
+                                                <td>Vendor Ref</td><td><t t-esc="po_item.partner_ref"/></td>
                                             </tr>
                                             <tr>
-                                                <td></td>
-                                                <td colspan="5">
-                                                    <table class="table table-condensed">
-                                                        <thead>
-                                                            <tr>
-                                                                <th>Product</th>
-                                                                <th>Description</th>
-                                                                <th>Qty</th>
-                                                                <th>Expected Arrival</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <tr t-foreach="po_item.order_line" t-as="po_line">
-                                                                <td><t t-esc="po_line.product_id.name"/></td>
-                                                                <td><t t-esc="po_line.name"/></td>
-                                                                <td><t t-esc="po_line.product_qty"/></td>
-                                                                <td><t t-esc="po_line.date_planned"/></td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </td>
+                                                <td>Expected Arrival</td><td><t t-esc="po_item.date_planned"/></td>
                                             </tr>
-                                        </t>
-                                    </div>
-                                </tbody>
-                            </table>
+                                            <tr>
+                                                <td>Status</td><td><t t-esc="po_item.state"/></td>
+                                            </tr>
+                                        </thead>
+                                        <tbody/>
+                                    </table>
+
+                                    <table class="table table-condensed" style="margin:25px">
+                                        <thead>
+                                            <tr style="background-color:#bccde8">
+                                                <th>Product</th>
+                                                <th>Description</th>
+                                                <th>Qty</th>
+                                                <th>Expected Arrival</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr t-foreach="po_item.order_line" t-as="po_line">
+                                                <td><t t-esc="po_line.product_id.name"/></td>
+                                                <td><t t-esc="po_line.name"/></td>
+                                                <td><t t-esc="po_line.product_qty"/></td>
+                                                <td><t t-esc="po_line.date_planned"/></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </t>
+                            </div>
                         </t>
+
 
                         <div t-foreach="event.session_lines" t-as="session">
                             <div style="page-break-before: always;"/>
+                            <div style="background-color:#bccde8">
+                                <h3>Session: <t t-esc="session.name"/>, <t
+                                        t-esc="event.name"/></h3>
+                            </div>
                             <table class="table table-condensed">
                                 <thead>
                                     <tr>
-                                        <th>Session Name</th>
-                                        <th>Start</th>
-                                        <th>End</th>
+                                        <td>Location</td><td><t t-esc="event.location_name"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Room</td><td><t t-esc="session.event_room_name"/>, Configuration: <t
+                                            t-esc="session.event_room_config"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Capacity</td><td><t t-esc="session.event_room_capacity"/>, PAX: <t
+                                            t-esc="session.pax"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Start - End</td><td><t t-esc="session.start_date"/> - <t
+                                            t-esc="session.end_date"/></td>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr>
-                                        <td><t t-esc="session.name"/></td>
-                                        <td><t t-esc="session.start_date"/></td>
-                                        <td><t t-esc="session.end_date"/></td>
-                                    </tr>
-                                </tbody>
+                                <tbody/>
                             </table>
-                            <t t-if="len(session.session_setup_items) > 0">
-                                <h5><t t-esc="session.name"/> Setup Items</h5>
+                            <t t-if="len(session.speakers) > 0">
+                                <h5>Speakers / Actors</h5>
                                 <table class="table table-condensed">
                                     <thead>
-                                        <tr>
+                                        <tr style="background-color:#bccde8">
+                                            <th>Name</th>
+                                            <th>Job Position</th>
+                                            <th>Email</th>
+                                            <th>Mobile</th>
+                                            <th>City</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="session.speakers" t-as="partner">
+                                            <td><t t-esc="partner.name"/></td>
+                                            <td><t t-esc="partner.function"/></td>
+                                            <td><t t-esc="partner.email"/></td>
+                                            <td><t t-esc="partner.mobile"/></td>
+                                            <td><t t-esc="partner.city"/></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </t>
+                            <t t-if="len(session.session_setup_items) > 0">
+                                <h5>Setup Items</h5>
+                                <table class="table table-condensed">
+                                    <thead>
+                                        <tr style="background-color:#bccde8">
                                             <th>Subject</th>
                                             <th>Item</th>
                                             <th>Qty</th>
@@ -156,57 +216,55 @@
                                 </table>
                             </t>
                             <t t-if="len(session.session_purchase_lines) > 0">
-                                <h5><t t-esc="session.name"/>Purchase Orders</h5>
-                                <table class="table table-condensed">
-                                    <thead>
-                                        <tr>
-                                            <td>PO Reference</td>
-                                            <td>Subject</td>
-                                            <td>Vendor Ref</td>
-                                            <td>Vendor</td>
-                                            <td>Expected Arrival</td>
-                                            <td>Status</td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <div t-foreach="session.session_purchase_lines" t-as="po_item">
-
-                                            <tr>
-                                                <th><b><t t-esc="po_item.name"/></b></th>
-                                                <th><b><t t-esc="po_item.subject"/></b></th>
-                                                <th><b><t t-esc="po_item.partner_ref"/></b></th>
-                                                <th><b><t t-esc="po_item.partner_id.name"/></b></th>
-                                                <th><b><t t-esc="po_item.date_planned"/></b></th>
-                                                <th><b><t t-esc="po_item.state"/></b></th>
-
+                                <h5>Purchase Orders</h5>
+                                <div t-foreach="session.session_purchase_lines" t-as="po_item">
+                                    <table class="table table-condensed">
+                                        <thead>
+                                            <tr style="background-color:#bccde8">
+                                                <td>PO Reference</td> <td><t t-esc="po_item.name"/></td>
                                             </tr>
                                             <tr>
-                                                <td></td>
-                                                <td colspan="5">
-                                                    <table class="table table-condensed">
-                                                        <thead>
-                                                            <tr>
-                                                                <th>Product</th>
-                                                                <th>Description</th>
-                                                                <th>Qty</th>
-                                                                <th>Expected Arrival</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <tr t-foreach="po_item.order_line" t-as="po_line">
-                                                                <td><t t-esc="po_line.product_id.name"/></td>
-                                                                <td><t t-esc="po_line.name"/></td>
-                                                                <td><t t-esc="po_line.product_qty"/></td>
-                                                                <td><t t-esc="po_line.date_planned"/></td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </td>
+                                                <td>Subject</td><td><t t-esc="po_item.subject"/></td>
                                             </tr>
-                                        </div>
-                                    </tbody>
-                                </table>
+                                            <tr>
+                                                <td>Vendor</td><td><t t-esc="po_item.partner_id.name"/></td>
+                                            </tr>
+
+                                            <tr>
+                                                <td>Vendor Ref</td><td><t t-esc="po_item.partner_ref"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Expected Arrival</td><td><t t-esc="po_item.date_planned"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Status</td><td><t t-esc="po_item.state"/></td>
+                                            </tr>
+                                        </thead>
+                                        <tbody/>
+                                    </table>
+
+                                    <table class="table table-condensed" style="margin:25px">
+                                        <thead>
+                                            <tr style="background-color:#bccde8">
+                                                <th>Product</th>
+                                                <th>Description</th>
+                                                <th>Qty</th>
+                                                <th>Expected Arrival</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr t-foreach="po_item.order_line" t-as="po_line">
+                                                <td><t t-esc="po_line.product_id.name"/></td>
+                                                <td><t t-esc="po_line.name"/></td>
+                                                <td><t t-esc="po_line.product_qty"/></td>
+                                                <td><t t-esc="po_line.date_planned"/></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <hr size="2"/>
                             </t>
+
                         </div>
                     </div>
                 </t>

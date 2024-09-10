@@ -2,9 +2,18 @@
 <odoo>
 
     <record id="report_jobcontrol_event_detail" model="ir.actions.report">
-        <field name="name">Event detail report</field>
+        <field name="name">Event detail pdf report</field>
         <field name="model">jobcontrol.eventmanagement.event</field>
         <field name="report_type">qweb-pdf</field>
+        <field name="binding_model_id" ref="model_jobcontrol_eventmanagement_event"/>
+        <field name="report_name">jobcontrol.eventmanagement_event_report</field>
+        <field name="report_file">jobcontrol.event_report_template</field>
+    </record>
+
+    <record id="report_jobcontrol_event_detail_html" model="ir.actions.report">
+        <field name="name">Event detail html page</field>
+        <field name="model">jobcontrol.eventmanagement.event</field>
+        <field name="report_type">qweb-html</field>
         <field name="binding_model_id" ref="model_jobcontrol_eventmanagement_event"/>
         <field name="report_name">jobcontrol.eventmanagement_event_report</field>
         <field name="report_file">jobcontrol.event_report_template</field>
